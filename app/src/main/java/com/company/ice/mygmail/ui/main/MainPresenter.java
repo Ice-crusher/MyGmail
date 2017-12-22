@@ -83,19 +83,12 @@ public class MainPresenter<V extends MainMvpView> extends BasePresenter<V>
     @Override
     public void onAttach(V mvpView) {
         super.onAttach(mvpView);
-        // Initialize credentials and service object.
-//        Log.d(TAG,"ALL ACCOUNT: " +  mCredential.getAllAccounts().toString());
-////        Log.d(TAG,"SELECTED ACCOUNT: " + mCredential.getSelectedAccount().toString());
-//        Log.d(TAG,"SELECTED ACCOUNT NAME: " + mCredential.getSelectedAccountName().toString());
-//        try {
-//            Log.d(TAG,"TOKEN: " + mCredential.getToken());
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        } catch (GoogleAuthException e) {
-//            e.printStackTrace();
-//        }
-//
-//        Log.d(TAG,"SCOPES: " + mCredential.getScope().toString());
+        if (!CommonUtils.isGooglePlayServicesAvailable(appContext))
+            getMvpView().startLoginActivity();
+
+        if (mCredential.getSelectedAccountName() == null)
+//            chooseAccount();
+            getMvpView().startLoginActivity();
     }
 
     /**
@@ -106,15 +99,8 @@ public class MainPresenter<V extends MainMvpView> extends BasePresenter<V>
      * appropriate.
      */
     private void getResultsFromApi() {
-        if (!CommonUtils.isGooglePlayServicesAvailable(appContext)) {
-//            acquireGooglePlayServices();
-            getMvpView().startLoginActivity();
-        } else if (mCredential.getSelectedAccountName() == null) {
-//            chooseAccount();
-            getMvpView().startLoginActivity();
-        } else if (!NetworkUtils.isNetworkConnected(appContext)) {
+        if (!NetworkUtils.isNetworkConnected(appContext)) {
             getMvpView().showResult("No network connection available");
-
         } else {
             getMvpView().showResult("");
             getMvpView().showLoading();
@@ -151,54 +137,6 @@ public class MainPresenter<V extends MainMvpView> extends BasePresenter<V>
                     });
         }
     }
-// /
-//    @Override
-//    public void onLogOutClick() {
-//        SharedPreferences settings =
-//                appContext.getSharedPreferences(AppConstants.SHARED_PREFERENCE_TAG, Context.MODE_PRIVATE);
-//        SharedPreferences.Editor editor = settings.edit();
-//        editor.putString(PREF_ACCOUNT_NAME, null);
-//        editor.apply();
-//        mCredential.setSelectedAccountName(null);
-//
-////        getMvpView().startSomeActivityForResult(mCredential.newChooseAccountIntent(),
-////                AppConstants.REQUEST_ACCOUNT_PICKER);
-////        chooseAccount();
-//    }
-
-//    /**
-//     * Attempts to set the account used with the API credentials. If an account
-//     * name was previously saved it will use that one; otherwise an account
-//     * picker dialog will be shown to the user. Note that the setting the
-//     * account to use with the credentials object requires the app to have the
-//     * GET_ACCOUNTS permission, which is requested here if it is not already
-//     * present. The AfterPermissionGranted annotation indicates that this
-//     * function will be rerun automatically whenever the GET_ACCOUNTS permission
-//     * is granted.
-//     */
-//    @AfterPermissionGranted(AppConstants.REQUEST_PERMISSION_GET_ACCOUNTS)
-//    private void chooseAccount() {
-//        if (EasyPermissions.hasPermissions(appContext, Manifest.permission.GET_ACCOUNTS)) {
-//            String accountName = appContext.getSharedPreferences(AppConstants.SHARED_PREFERENCE_TAG, Context.MODE_PRIVATE)
-//                    .getString(PREF_ACCOUNT_NAME, null);
-//            if (accountName != null) {
-//                mCredential.setSelectedAccountName(accountName);
-//
-//                Log.d(TAG,"SELECTED ACCOUNT NAME: " + mCredential.getSelectedAccountName().toString());
-//                getResultsFromApi();
-//            } else {
-//                // Start a dialog from which the user can choose an account
-//                getMvpView().startSomeActivityForResult(mCredential.newChooseAccountIntent(),
-//                        AppConstants.REQUEST_ACCOUNT_PICKER);
-////                    startActivityForResult(
-////                        mCredential.newChooseAccountIntent(),
-////                        REQUEST_ACCOUNT_PICKER);
-//            }
-//        } else {
-//            // Request the GET_ACCOUNTS permission via a user dialog
-//            getMvpView().requestPermission();
-//        }
-//    }
 
     /**
      * Called when an activity launched here (specifically, AccountPicker
@@ -249,19 +187,6 @@ public class MainPresenter<V extends MainMvpView> extends BasePresenter<V>
         }
     }
 
-    /**
-     * Attempt to resolve a missing, out-of-date, invalid or disabled Google
-     * Play Services installation via a user dialog, if possible.
-     */
-    private void acquireGooglePlayServices() {
-        GoogleApiAvailability apiAvailability =
-                GoogleApiAvailability.getInstance();
-        final int connectionStatusCode =
-                apiAvailability.isGooglePlayServicesAvailable(appContext);
-        if (apiAvailability.isUserResolvableError(connectionStatusCode)) {
-            getMvpView().showGooglePlayServicesAvailabilityErrorDialog(connectionStatusCode);
-        }
-    }
 //    @Override
 //    public void onBackPressed() {
 //        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
