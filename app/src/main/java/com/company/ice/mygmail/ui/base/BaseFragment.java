@@ -20,7 +20,7 @@ import butterknife.Unbinder;
 public abstract class BaseFragment extends Fragment implements MvpView {
 
     private BaseActivity mActivity;
-    private Unbinder mUnbinder;
+    private Unbinder mUnBinder;
     private ProgressDialog mProgressDialog;
 
     @Override
@@ -119,15 +119,15 @@ public abstract class BaseFragment extends Fragment implements MvpView {
     }
 
     public void setUnBinder(Unbinder unBinder) {
-        mUnbinder = unBinder;
+        mUnBinder = unBinder;
     }
 
     protected abstract void setUp(View view);
 
     @Override
     public void onDestroy() {
-        if (mUnbinder != null) {
-            mUnbinder.unbind();
+        if (mUnBinder != null) {
+            mUnBinder.unbind();
         }
         super.onDestroy();
     }

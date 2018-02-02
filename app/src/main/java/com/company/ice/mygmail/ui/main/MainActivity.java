@@ -5,6 +5,8 @@ import android.graphics.drawable.Animatable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -15,6 +17,7 @@ import com.company.ice.mygmail.R;
 import com.company.ice.mygmail.data.DataManager;
 import com.company.ice.mygmail.ui.base.BaseActivity;
 import com.company.ice.mygmail.ui.login.LoginActivity;
+import com.company.ice.mygmail.ui.messagesList.MessagesListFragment;
 import com.company.ice.mygmail.utils.AppConstants;
 import com.company.ice.mygmail.utils.CommonUtils;
 import com.google.android.gms.common.ConnectionResult;
@@ -105,8 +108,30 @@ public class MainActivity extends BaseActivity
 //            mCallApiButton.setEnabled(true);
 //        });
 
+
+
         setUp();
         mPresenter.onAttach(MainActivity.this);
+    }
+
+    public static Intent getStartIntent(Context context){
+        Intent intent = new Intent(context, MainActivity.class);
+        return intent;
+    }
+
+    @Override
+    public void insertMessageListFragment(){
+        MessagesListFragment messagesListFragment = null;
+        FragmentManager supportFragmentManager  = getSupportFragmentManager();
+        messagesListFragment = (MessagesListFragment)supportFragmentManager.findFragmentById(R.id.messages_frame_layout);
+        if (messagesListFragment == null){
+            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+            messagesListFragment = new MessagesListFragment();
+            fragmentTransaction.replace(R.id.messages_frame_layout, messagesListFragment);
+            //fragmentTransaction.addToBackStack(null);
+            fragmentTransaction.setTransition(android.app.FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+            fragmentTransaction.commit();
+        }
     }
 
     @OnClick(R.id.call_api_btn)
@@ -223,7 +248,7 @@ public class MainActivity extends BaseActivity
 
     @Override
     public void startLoginActivity() {
-        startActivity(new Intent(this, LoginActivity.class));
+        startActivity(LoginActivity.getStartIntent(this));
         finish();
     }
 

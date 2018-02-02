@@ -86,9 +86,12 @@ public class MainPresenter<V extends MainMvpView> extends BasePresenter<V>
         if (!CommonUtils.isGooglePlayServicesAvailable(appContext))
             getMvpView().startLoginActivity();
 
+        Log.d(TAG, "SELECTED ACCOUNT: " + mCredential.getSelectedAccountName());
         if (mCredential.getSelectedAccountName() == null)
 //            chooseAccount();
             getMvpView().startLoginActivity();
+
+        getMvpView().insertMessageListFragment();
     }
 
     /**
