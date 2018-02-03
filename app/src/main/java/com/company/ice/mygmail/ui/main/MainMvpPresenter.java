@@ -10,7 +10,6 @@ import com.company.ice.mygmail.ui.base.MvpPresenter;
  */
 
 public interface MainMvpPresenter<V extends MainMvpView> extends MvpPresenter<V> {
-    void onCallGoogleApi();
     void onActivityResultFromView(int requestCode, int resultCode, Intent data);
     void onNavMenuCreated();
 //    void onLogOutClick();

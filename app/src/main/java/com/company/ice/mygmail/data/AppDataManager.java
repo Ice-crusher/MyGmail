@@ -37,14 +37,19 @@ public class AppDataManager implements DataManager {
     }
 
     @Override
+    public void setCredential(GoogleAccountCredential credential) {
+        mCredential = credential;
+    }
+
+    @Override
     public void setUserAsLoggedOut() {
 
     }
 
     @Override
-    public Observable<List<String>> getShortMessageDescription(GoogleAccountCredential credential) {
-        Log.d(TAG, "in method: " + credential.getSelectedAccountName());
-        Log.d(TAG, "in global: " + mCredential.getSelectedAccountName());
-        return mApiHelper.getShortMessageDescription(credential);
+    public Observable<List<String>> getShortMessageDescription() {
+//        Log.d(TAG, "in method: " + credential.getSelectedAccountName());
+//        Log.d(TAG, "in global: " + mCredential.getSelectedAccountName());
+        return mApiHelper.getShortMessageDescription(mCredential);
     }
 }

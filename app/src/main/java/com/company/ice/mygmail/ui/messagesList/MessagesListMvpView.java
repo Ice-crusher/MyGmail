@@ -8,4 +8,5 @@ import com.company.ice.mygmail.ui.base.MvpView;
 
 public interface MessagesListMvpView extends MvpView {
 
+    void updateMessages(String text);
 }

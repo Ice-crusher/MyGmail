@@ -76,69 +76,23 @@ public class MainPresenter<V extends MainMvpView> extends BasePresenter<V>
     }
 
     @Override
-    public void onCallGoogleApi() {
-        getResultsFromApi();
-    }
-
-    @Override
     public void onAttach(V mvpView) {
         super.onAttach(mvpView);
         if (!CommonUtils.isGooglePlayServicesAvailable(appContext))
             getMvpView().startLoginActivity();
 
         Log.d(TAG, "SELECTED ACCOUNT: " + mCredential.getSelectedAccountName());
-        if (mCredential.getSelectedAccountName() == null)
+        if (mCredential.getSelectedAccountName() == null) {
 //            chooseAccount();
+            getDataManager().setUserAsLoggedOut();
             getMvpView().startLoginActivity();
-
-        getMvpView().insertMessageListFragment();
-    }
-
-    /**
-     * Attempt to call the API, after verifying that all the preconditions are
-     * satisfied. The preconditions are: Google Play Services installed, an
-     * account was selected and the device currently has online access. If any
-     * of the preconditions are not satisfied, the app will prompt the user as
-     * appropriate.
-     */
-    private void getResultsFromApi() {
-        if (!NetworkUtils.isNetworkConnected(appContext)) {
-            getMvpView().showResult("No network connection available");
-        } else {
-            getMvpView().showResult("");
-            getMvpView().showLoading();
-            getDataManager().getShortMessageDescription(mCredential)
-                    .subscribeOn(getSchedulerProvider().io())
-                    .observeOn(getSchedulerProvider().ui())
-                    .subscribe(list -> { // SUCCESS
-                        getMvpView().hideLoading();
-                        if (list == null || list.size() == 0) {
-                            getMvpView().showResult("No results returned.");
-                        } else {
-                            list.add(0, "Data retrieved using the Gmail API:");
-                            getMvpView().showResult(TextUtils.join("\n\n", list));
-                        }
-                    }, error -> { // ERROR
-                        getMvpView().hideLoading();
-                        if (error != null) {
-                            if (error instanceof GooglePlayServicesAvailabilityIOException) {
-                                getMvpView().showGooglePlayServicesAvailabilityErrorDialog(
-                                        ((GooglePlayServicesAvailabilityIOException) error)
-                                                .getConnectionStatusCode());
-                            } else if (error instanceof UserRecoverableAuthIOException) {
-                                getMvpView().startSomeActivityForResult(
-                                        ((UserRecoverableAuthIOException) error).getIntent(),
-                                        AppConstants.REQUEST_AUTHORIZATION);
-                            } else {
-                                Log.e(TAG, error.toString());
-                                getMvpView().showResult("The following error occurred:\n"
-                                        + error.toString());
-                            }
-                        } else {
-                            getMvpView().showResult("Request cancelled.");
-                        }
-                    });
         }
+        if (mCredential != null){
+            getDataManager().setCredential(mCredential);
+        } else {
+            Log.e(TAG, "CREDENTIAL IS NULL, CAN'T SET HIM IN DATA_MANAGER");
+        }
+        getMvpView().insertMessageListFragment();
     }
 
     /**
@@ -155,11 +109,11 @@ public class MainPresenter<V extends MainMvpView> extends BasePresenter<V>
         switch(requestCode) {
             case AppConstants.REQUEST_GOOGLE_PLAY_SERVICES:
                 if (resultCode != Activity.RESULT_OK) {
-                    getMvpView().showResult(
+                    getMvpView().showMessage(
                             "This app requires Google Play Services. Please install " +
                                     "Google Play Services on your device and relaunch this app.");
                 } else {
-                    getResultsFromApi();
+                  //  getResultsFromApi();
                 }
                 break;
             case AppConstants.REQUEST_ACCOUNT_PICKER:
@@ -176,7 +130,7 @@ public class MainPresenter<V extends MainMvpView> extends BasePresenter<V>
                         editor.putString(PREF_ACCOUNT_NAME, accountName);
                         editor.apply();
                         mCredential.setSelectedAccountName(accountName);
-                        getResultsFromApi();
+                        getDataManager().setCredential(mCredential);
                     }
                 } else {
                     Log.d(TAG, "RESULT CODE: " + resultCode);
@@ -184,7 +138,7 @@ public class MainPresenter<V extends MainMvpView> extends BasePresenter<V>
                 break;
             case AppConstants.REQUEST_AUTHORIZATION:
                 if (resultCode == Activity.RESULT_OK) {
-                    getResultsFromApi();
+                 //   getResultsFromApi();
                 }
                 break;
         }

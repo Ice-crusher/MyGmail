@@ -9,7 +9,6 @@ import com.company.ice.mygmail.ui.base.MvpView;
  */
 
 public interface MainMvpView extends MvpView {
-    void showResult(String text);
     void startSomeActivityForResult(Intent intent, int REQUEST_ACCOUNT_PICKER);
     void requestPermission();
     void showGooglePlayServicesAvailabilityErrorDialog(final int connectionStatusCode);

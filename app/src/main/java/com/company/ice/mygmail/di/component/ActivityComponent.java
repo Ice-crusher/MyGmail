@@ -19,6 +19,7 @@ import com.company.ice.mygmail.di.PerActivity;
 import com.company.ice.mygmail.di.module.ActivityModule;
 import com.company.ice.mygmail.ui.login.LoginActivity;
 import com.company.ice.mygmail.ui.main.MainActivity;
+import com.company.ice.mygmail.ui.messagesList.MessagesListFragment;
 
 import dagger.Component;
 
@@ -32,4 +33,5 @@ public interface ActivityComponent {
 
     void inject(MainActivity activity);
     void inject(LoginActivity activity);
+    void inject(MessagesListFragment fragment);
 }

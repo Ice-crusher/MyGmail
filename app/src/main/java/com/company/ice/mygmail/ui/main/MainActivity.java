@@ -75,12 +75,6 @@ public class MainActivity extends BaseActivity
     @Inject
     MainMvpPresenter<MainMvpView> mPresenter;
 
-    @BindView(R.id.call_api_btn)
-    Button mCallApiButton;
-
-    @BindView(R.id.result_api_tv)
-    TextView mOutputText;
-
     @BindView(R.id.toolbar)
     Toolbar mToolbar;
 
@@ -132,14 +126,6 @@ public class MainActivity extends BaseActivity
             fragmentTransaction.setTransition(android.app.FragmentTransaction.TRANSIT_FRAGMENT_FADE);
             fragmentTransaction.commit();
         }
-    }
-
-    @OnClick(R.id.call_api_btn)
-    void onClickCallApiButton(View view){
-        mCallApiButton.setEnabled(false);
-        mOutputText.setText("");
-        mPresenter.onCallGoogleApi();
-        mCallApiButton.setEnabled(true);
     }
 
     @Override
@@ -250,11 +236,6 @@ public class MainActivity extends BaseActivity
     public void startLoginActivity() {
         startActivity(LoginActivity.getStartIntent(this));
         finish();
-    }
-
-    @Override
-    public void showResult(String text) {
-        mOutputText.setText(text);
     }
 
     @Override

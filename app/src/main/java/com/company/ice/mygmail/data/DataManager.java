@@ -13,8 +13,9 @@ import io.reactivex.Observable;
 
 public interface DataManager {
 
+    void setCredential(GoogleAccountCredential credential);
     void setUserAsLoggedOut();
 
-    Observable<List<String>> getShortMessageDescription(GoogleAccountCredential credential);
+    Observable<List<String>> getShortMessageDescription();
 
 }

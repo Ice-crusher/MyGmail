@@ -27,8 +27,14 @@ import com.company.ice.mygmail.ui.login.LoginPresenter;
 import com.company.ice.mygmail.ui.main.MainMvpPresenter;
 import com.company.ice.mygmail.ui.main.MainMvpView;
 import com.company.ice.mygmail.ui.main.MainPresenter;
+import com.company.ice.mygmail.ui.messagesList.MessagesListAdapter;
+import com.company.ice.mygmail.ui.messagesList.MessagesListMvpPresenter;
+import com.company.ice.mygmail.ui.messagesList.MessagesListMvpView;
+import com.company.ice.mygmail.ui.messagesList.MessagesListPresenter;
 import com.company.ice.mygmail.utils.rx.AppSchedulerProvider;
 import com.company.ice.mygmail.utils.rx.SchedulerProvider;
+
+import java.util.ArrayList;
 
 import dagger.Module;
 import dagger.Provides;
@@ -70,6 +76,17 @@ public class ActivityModule {
     LoginMvpPresenter<LoginMvpView> provideLoginPresenter(
             LoginPresenter<LoginMvpView> presenter) {
         return presenter;
+    }
+
+    @Provides
+    MessagesListMvpPresenter<MessagesListMvpView> provideMessagesListPresenter(
+            MessagesListPresenter<MessagesListMvpView> presenter) {
+        return presenter;
+    }
+
+    @Provides
+    MessagesListAdapter provideBlogAdapter() {
+        return new MessagesListAdapter(new ArrayList<String>());
     }
 
     @Provides
