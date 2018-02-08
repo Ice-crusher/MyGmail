@@ -21,6 +21,8 @@ import io.reactivex.disposables.CompositeDisposable;
 public class MessagesListPresenter<V extends MessagesListMvpView> extends BasePresenter<V>
         implements MessagesListMvpPresenter<V> {
 
+    private final static String TAG = "MessagesListPresenter";
+
     @Inject
     public MessagesListPresenter(DataManager dataManager, SchedulerProvider schedulerProvider, CompositeDisposable compositeDisposable) {
         super(dataManager, schedulerProvider, compositeDisposable);
@@ -36,10 +38,9 @@ public class MessagesListPresenter<V extends MessagesListMvpView> extends BasePr
                 .subscribe(list -> {
                     getMvpView().hideLoading();
                     if (list == null || list.size() == 0) {
-                        getMvpView().updateMessages("No results returned.");
+                        getMvpView().showMessage("No results returned.");
                     } else {
-                        list.add(0, "Data retrieved using the Gmail API:");
-                        getMvpView().updateMessages(TextUtils.join("\n\n", list));
+                        getMvpView().updateMessages(list);
                     }
                     getMvpView().hideLoading();
 
@@ -48,7 +49,8 @@ public class MessagesListPresenter<V extends MessagesListMvpView> extends BasePr
                         return;
                     }
 
-                    getMvpView().updateMessages("Request cancelled.");
+                    getMvpView().showMessage("Request cancelled.");
+                    Log.e(TAG, error.toString());
 
                     getMvpView().hideLoading();
                 })

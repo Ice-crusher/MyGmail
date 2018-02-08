@@ -2,6 +2,7 @@ package com.company.ice.mygmail.data.network;
 
 import android.util.Log;
 
+import com.company.ice.mygmail.data.network.model.Messages;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
@@ -13,7 +14,10 @@ import com.google.api.services.gmail.model.ListMessagesResponse;
 import com.google.api.services.gmail.model.Message;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -34,8 +38,8 @@ public class AppApiHelper implements ApiHelper {
 
 
     @Override
-    public Observable<List<String>> getShortMessageDescription(GoogleAccountCredential credential) {
-        Observable<List<String>> observable = Observable.create(subscriber -> {
+    public Observable<List<Messages.ShortMessage>> getShortMessageDescription(GoogleAccountCredential credential) {
+        Observable<List<Messages.ShortMessage>> observable = Observable.create(subscriber -> {
 
             HttpTransport transport = AndroidHttp.newCompatibleTransport();
             JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
@@ -54,7 +58,7 @@ public class AppApiHelper implements ApiHelper {
         return Observable.defer(() -> observable);
     }
 
-    private List<String> getDataFromApi(Gmail service) throws IOException {
+    private List<Messages.ShortMessage> getDataFromApi(Gmail service) throws IOException {
         // Get the labels in the user's account.
         String user = "me";
 //            Message message = mService.users().messages().get("me", "15f65745795344bb").setFormat("metadata").execute();
@@ -74,8 +78,10 @@ public class AppApiHelper implements ApiHelper {
                 service.users().messages().list(user).setMaxResults(Long.valueOf(6)).execute();
 
         List<Message> messages = messageResponse.getMessages();
-        List<String> labels = new ArrayList<String>();
+        List<Messages.ShortMessage> list = new ArrayList<>();
         for (Message message : messages) {
+            Messages.ShortMessage shortMessage = new Messages.ShortMessage("Name", "Desription", "01/01/2000");
+
             Message message2 = service.users().messages().get(user, message.getId()).setFormat("raw").execute();
 //                Log.d(TAG, message2)
 //
@@ -85,7 +91,18 @@ public class AppApiHelper implements ApiHelper {
 //
 //                messageList.add(body);
 //                Log.d(TAG, message2.getPayload().getHeaders().get(0).getValue());
-            labels.add(message2.getSnippet());
+//            labels.add(message2.getSnippet());
+            Date date = new Date(message2.getInternalDate());
+//            String pat =
+            DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+            String s =  formatter.format(date);
+//            labels.add(s);
+            shortMessage.setDate(s);
+            shortMessage.setDescription(message2.getSnippet());
+            shortMessage.setAuthor("Author");
+            Log.d(TAG, s);
+
+            list.add(shortMessage);
 //            Log.d(TAG, message2.getSnippet());
         }
 
@@ -96,7 +113,7 @@ public class AppApiHelper implements ApiHelper {
 //        }
 //            ListLabelsResponse listResponse = mService.users().labels().list(user).execute();
 
-        return labels;
+        return list;
 
 
     }

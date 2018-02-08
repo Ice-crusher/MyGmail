@@ -19,6 +19,7 @@ import android.content.Context;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 
+import com.company.ice.mygmail.data.network.model.Messages;
 import com.company.ice.mygmail.di.ActivityContext;
 import com.company.ice.mygmail.di.PerActivity;
 import com.company.ice.mygmail.ui.login.LoginMvpPresenter;
@@ -86,7 +87,7 @@ public class ActivityModule {
 
     @Provides
     MessagesListAdapter provideBlogAdapter() {
-        return new MessagesListAdapter(new ArrayList<String>());
+        return new MessagesListAdapter(new ArrayList<Messages.ShortMessage>());
     }
 
     @Provides

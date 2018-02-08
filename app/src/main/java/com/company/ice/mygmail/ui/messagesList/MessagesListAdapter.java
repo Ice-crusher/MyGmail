@@ -3,6 +3,7 @@ package com.company.ice.mygmail.ui.messagesList;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +12,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.company.ice.mygmail.R;
+import com.company.ice.mygmail.data.network.model.Messages;
 import com.company.ice.mygmail.ui.base.BaseViewHolder;
 
 import java.util.ArrayList;
@@ -24,16 +26,26 @@ import butterknife.OnClick;
  * Created by Ice on 03.02.2018.
  */
 
+//public class MessagesListAdapter {
+//    public MessagesListAdapter(ArrayList<Messages.ShortMessage> list) {
+//    }
+//}
 public class MessagesListAdapter extends RecyclerView.Adapter<BaseViewHolder>{
+
+    private static final String TAG = "MessagesListAdapter";
 
     public static final int VIEW_TYPE_EMPTY = 0;
     public static final int VIEW_TYPE_NORMAL = 1;
 
     private Callback mCallback;
-    private List<BlogResponse.Blog> mBlogResponseList;
+    private List<Messages.ShortMessage> mMessageList;
 
-    public MessagesListAdapter(ArrayList<String> string) {
-        mBlogResponseList = string;
+    public MessagesListAdapter(ArrayList<Messages.ShortMessage> list) {
+        mMessageList = list;
+    }
+
+    public void setCallback(Callback callback) {
+        mCallback = callback;
     }
 
     @Override
@@ -41,7 +53,7 @@ public class MessagesListAdapter extends RecyclerView.Adapter<BaseViewHolder>{
         switch (viewType) {
             case VIEW_TYPE_NORMAL:
                 return new ViewHolder(
-                        LayoutInflater.from(parent.getContext()).inflate(R.layout.item_blog_view, parent, false));
+                        LayoutInflater.from(parent.getContext()).inflate(R.layout.item_message_view, parent, false));
             case VIEW_TYPE_EMPTY:
             default:
                 return new EmptyViewHolder(
@@ -56,7 +68,7 @@ public class MessagesListAdapter extends RecyclerView.Adapter<BaseViewHolder>{
 
     @Override
     public int getItemViewType(int position) {
-        if (mBlogResponseList != null && mBlogResponseList.size() > 0) {
+        if (mMessageList != null && mMessageList.size() > 0) {
             return VIEW_TYPE_NORMAL;
         } else {
             return VIEW_TYPE_EMPTY;
@@ -65,15 +77,16 @@ public class MessagesListAdapter extends RecyclerView.Adapter<BaseViewHolder>{
 
     @Override
     public int getItemCount() {
-        if (mBlogResponseList != null && mBlogResponseList.size() > 0) {
-            return mBlogResponseList.size();
+        if (mMessageList != null && mMessageList.size() > 0) {
+            return mMessageList.size();
         } else {
             return 1;
         }
     }
 
-    public void addItems(List<BlogResponse.Blog> blogList) {
-        mBlogResponseList.addAll(blogList);
+    public void addItems(List<Messages.ShortMessage> list) {
+//        mMessageList.addAll(list);
+        mMessageList = list;
         notifyDataSetChanged();
     }
 
@@ -83,11 +96,8 @@ public class MessagesListAdapter extends RecyclerView.Adapter<BaseViewHolder>{
 
     public class ViewHolder extends BaseViewHolder {
 
-        @BindView(R.id.cover_image_view)
-        ImageView coverImageView;
-
-        @BindView(R.id.title_text_view)
-        TextView titleTextView;
+//        @BindView(R.id.cover_image_view)
+//        ImageView coverImageView;
 
         @BindView(R.id.author_text_view)
         TextView authorTextView;
@@ -104,66 +114,58 @@ public class MessagesListAdapter extends RecyclerView.Adapter<BaseViewHolder>{
         }
 
         protected void clear() {
-            coverImageView.setImageDrawable(null);
-            titleTextView.setText("");
             contentTextView.setText("");
         }
 
         public void onBind(int position) {
             super.onBind(position);
 
-            final BlogResponse.Blog blog = mBlogResponseList.get(position);
+            final Messages.ShortMessage shortMessage = mMessageList.get(position);
 
-            if (blog.getCoverImgUrl() != null) {
-                Glide.with(itemView.getContext())
-                        .load(blog.getCoverImgUrl())
-                        .asBitmap()
-                        .centerCrop()
-                        .into(coverImageView);
+//            if (blog.getCoverImgUrl() != null) {
+//                Glide.with(itemView.getContext())
+//                        .load(blog.getCoverImgUrl())
+//                        .asBitmap()
+//                        .centerCrop()
+//                        .into(coverImageView);
+//            }
+
+            if (shortMessage.getAuthor() != null) {
+                authorTextView.setText(shortMessage.getAuthor());
             }
 
-            if (blog.getTitle() != null) {
-                titleTextView.setText(blog.getTitle());
+            if (shortMessage.getDate() != null) {
+                dateTextView.setText(shortMessage.getDate());
             }
 
-            if (blog.getAuthor() != null) {
-                authorTextView.setText(blog.getAuthor());
+            if (shortMessage.getDescription() != null) {
+                contentTextView.setText(shortMessage.getDescription());
             }
 
-            if (blog.getDate() != null) {
-                dateTextView.setText(blog.getDate());
-            }
-
-            if (blog.getDescription() != null) {
-                contentTextView.setText(blog.getDescription());
-            }
-
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (blog.getBlogUrl() != null) {
-                        try {
-                            Intent intent = new Intent();
-                            intent.setAction(Intent.ACTION_VIEW);
-                            intent.addCategory(Intent.CATEGORY_BROWSABLE);
-                            intent.setData(Uri.parse(blog.getBlogUrl()));
-                            itemView.getContext().startActivity(intent);
-                        } catch (Exception e) {
-                            AppLogger.d("url error");
-                        }
-                    }
-                }
-            });
+//            itemView.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    if (shortMessage.getBlogUrl() != null) {
+//                        try {
+//                            Intent intent = new Intent();
+//                            intent.setAction(Intent.ACTION_VIEW);
+//                            intent.addCategory(Intent.CATEGORY_BROWSABLE);
+//                            intent.setData(Uri.parse(shortMessage.getBlogUrl()));
+//                            itemView.getContext().startActivity(intent);
+//                        } catch (Exception e) {
+////                            AppLogger.d("url error");
+//                            Log.e(TAG, "ERROR");
+//                        }
+//                    }
+//                }
+//            });
         }
     }
 
     public class EmptyViewHolder extends BaseViewHolder {
 
-        @BindView(R.id.btn_retry)
+        @BindView(R.id.buttonRetryMessageLoad)
         Button retryButton;
-
-        @BindView(R.id.tv_message)
-        TextView messageTextView;
 
         public EmptyViewHolder(View itemView) {
             super(itemView);
@@ -175,7 +177,7 @@ public class MessagesListAdapter extends RecyclerView.Adapter<BaseViewHolder>{
 
         }
 
-        @OnClick(R.id.btn_retry)
+        @OnClick(R.id.buttonRetryMessageLoad)
         void onRetryClick() {
             if (mCallback != null)
                 mCallback.onBlogEmptyViewRetryClick();

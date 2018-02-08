@@ -5,15 +5,39 @@ package com.company.ice.mygmail.data.network.model;
  */
 
 public class Messages {
-    public class ShortMessage {
-        public String shortDescription;
+    public static class ShortMessage {
+        public String author;
+        public String description;
+        public String date;
 
-        public String getShortDescription() {
-            return shortDescription;
+        public ShortMessage(String author, String description, String date) {
+            this.author = author;
+            this.description = description;
+            this.date = date;
         }
 
-        public void setShortDescription(String shortDescription) {
-            this.shortDescription = shortDescription;
+        public String getAuthor() {
+            return author;
+        }
+
+        public void setAuthor(String author) {
+            this.author = author;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+
+        public void setDescription(String description) {
+            this.description = description;
+        }
+
+        public String getDate() {
+            return date;
+        }
+
+        public void setDate(String date) {
+            this.date = date;
         }
     }
 }

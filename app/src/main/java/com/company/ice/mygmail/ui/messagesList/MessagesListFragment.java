@@ -4,15 +4,22 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.company.ice.mygmail.R;
+import com.company.ice.mygmail.data.network.model.Messages;
 import com.company.ice.mygmail.di.component.ActivityComponent;
 import com.company.ice.mygmail.ui.base.BaseFragment;
+import com.company.ice.mygmail.ui.custom.SimpleDividerItemDecoration;
+
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -25,7 +32,7 @@ import butterknife.ButterKnife;
  * Use the {@link MessagesListFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class MessagesListFragment extends BaseFragment implements MessagesListMvpView {
+public class MessagesListFragment extends BaseFragment implements MessagesListMvpView, MessagesListAdapter.Callback {
 
     private static final String TAG = "MessagesListFragment";
 
@@ -38,8 +45,8 @@ public class MessagesListFragment extends BaseFragment implements MessagesListMv
     @Inject
     LinearLayoutManager mLayoutManager;
 
-    @BindView(R.id.fragment_text)
-    TextView mTextView;
+    @BindView(R.id.messages_recycler_view)
+    RecyclerView mRecyclerView;
 
     public MessagesListFragment() {
         // Required empty public constructor
@@ -76,7 +83,7 @@ public class MessagesListFragment extends BaseFragment implements MessagesListMv
             component.inject(this);
             setUnBinder(ButterKnife.bind(this, view));
             mPresenter.onAttach(this);
-
+            mListAdapter.setCallback(this);
         }
 
         // Inflate the layout for this fragment
@@ -86,6 +93,11 @@ public class MessagesListFragment extends BaseFragment implements MessagesListMv
     @Override
     protected void setUp(View view) {
         mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        mRecyclerView.setLayoutManager(mLayoutManager);
+        mRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(getContext()));
+        mRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        mRecyclerView.setAdapter(mListAdapter);
+
         mPresenter.onViewPrepared();
     }
 
@@ -96,7 +108,14 @@ public class MessagesListFragment extends BaseFragment implements MessagesListMv
     }
 
     @Override
-    public void updateMessages(String text) {
-        mTextView.setText(text);
+    public void updateMessages(List<Messages.ShortMessage> list) {
+        Log.d(TAG, list.get(0).getDescription());
+        mListAdapter.addItems(list);
+        Log.d(TAG, String.valueOf(mListAdapter.getItemCount()));
+    }
+
+    @Override
+    public void onBlogEmptyViewRetryClick() {
+
     }
 }

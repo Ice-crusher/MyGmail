@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.Log;
 
 import com.company.ice.mygmail.data.network.ApiHelper;
+import com.company.ice.mygmail.data.network.model.Messages;
 import com.company.ice.mygmail.di.ApplicationContext;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
@@ -47,7 +48,7 @@ public class AppDataManager implements DataManager {
     }
 
     @Override
-    public Observable<List<String>> getShortMessageDescription() {
+    public Observable<List<Messages.ShortMessage>> getShortMessageDescription() {
 //        Log.d(TAG, "in method: " + credential.getSelectedAccountName());
 //        Log.d(TAG, "in global: " + mCredential.getSelectedAccountName());
         return mApiHelper.getShortMessageDescription(mCredential);
