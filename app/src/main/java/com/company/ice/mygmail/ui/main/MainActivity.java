@@ -16,6 +16,7 @@ import android.util.Log;
 import com.company.ice.mygmail.R;
 import com.company.ice.mygmail.data.DataManager;
 import com.company.ice.mygmail.ui.base.BaseActivity;
+import com.company.ice.mygmail.ui.detailedMessaage.DetailedMessageFragment;
 import com.company.ice.mygmail.ui.login.LoginActivity;
 import com.company.ice.mygmail.ui.messagesList.MessagesListFragment;
 import com.company.ice.mygmail.utils.AppConstants;
@@ -68,7 +69,7 @@ import static com.company.ice.mygmail.utils.AppConstants.REQUEST_PERMISSION_GET_
 public class MainActivity extends BaseActivity
         implements
 //        NavigationView.OnNavigationItemSelectedListener,
-        EasyPermissions.PermissionCallbacks, MainMvpView {
+        EasyPermissions.PermissionCallbacks, MainMvpView, MessagesListFragment.ClickListener {
 
     public static final String TAG = "Main1";
 
@@ -115,17 +116,37 @@ public class MainActivity extends BaseActivity
 
     @Override
     public void insertMessageListFragment(){
-        MessagesListFragment messagesListFragment = null;
+        MessagesListFragment fragment = null;
         FragmentManager supportFragmentManager  = getSupportFragmentManager();
-        messagesListFragment = (MessagesListFragment)supportFragmentManager.findFragmentById(R.id.messages_frame_layout);
-        if (messagesListFragment == null){
+        fragment = (MessagesListFragment)supportFragmentManager.findFragmentById(R.id.messages_frame_layout);
+        if (fragment == null){
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-            messagesListFragment = new MessagesListFragment();
-            fragmentTransaction.replace(R.id.messages_frame_layout, messagesListFragment);
+            fragment = new MessagesListFragment();
+            fragmentTransaction.replace(R.id.messages_frame_layout, fragment);
             //fragmentTransaction.addToBackStack(null);
             fragmentTransaction.setTransition(android.app.FragmentTransaction.TRANSIT_FRAGMENT_FADE);
             fragmentTransaction.commit();
         }
+    }
+
+    @Override
+    public void insertDetailedMessageFragment(String id) {
+        DetailedMessageFragment fragment = DetailedMessageFragment.newInstance(id, "some");
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.messages_frame_layout, fragment)
+                .addToBackStack(null)
+                .commit();
+//        FragmentManager supportFragmentManager  = getSupportFragmentManager();
+//        fragment = (DetailedMessageFragment)supportFragmentManager.findFragmentById(R.id.messages_frame_layout);
+//        if (fragment == null) {
+//            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+//            fragment = DetailedMessageFragment.newInstance(id, "some");
+//            fragmentTransaction.replace(R.id.messages_frame_layout, fragment);
+//            fragmentTransaction.addToBackStack(null);
+//            fragmentTransaction.setTransition(android.app.FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+//            fragmentTransaction.commit();
+//        }
+
     }
 
     @Override
@@ -334,4 +355,10 @@ public class MainActivity extends BaseActivity
                 AppConstants.REQUEST_GOOGLE_PLAY_SERVICES);
         dialog.show();
     }
+
+    @Override
+    public void onClick(String id) {
+        insertDetailedMessageFragment(id);
+    }
+
 }

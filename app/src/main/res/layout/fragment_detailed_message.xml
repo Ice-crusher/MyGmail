@@ -1,0 +1,28 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.company.ice.mygmail.ui.detailedMessaage.DetailedMessageFragment">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="fill_parent"
+        android:background="#ffffff"
+        android:clipToPadding="false"
+        android:scrollbars="horizontal"
+        android:fillViewport="true">
+
+        <TextView
+            android:id="@+id/message_content_text"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <!--<WebView-->
+            <!--android:id="@+id/message_content"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="match_parent" />-->
+
+
+    </ScrollView>
+
+</FrameLayout>

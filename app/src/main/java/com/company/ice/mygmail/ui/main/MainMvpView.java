@@ -17,4 +17,5 @@ public interface MainMvpView extends MvpView {
     void lockDrawer();
     void unlockDrawer();
     void insertMessageListFragment();
+    void insertDetailedMessageFragment(String id);
 }

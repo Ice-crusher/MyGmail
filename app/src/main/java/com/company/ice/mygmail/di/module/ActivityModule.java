@@ -22,6 +22,9 @@ import android.support.v7.widget.LinearLayoutManager;
 import com.company.ice.mygmail.data.network.model.Messages;
 import com.company.ice.mygmail.di.ActivityContext;
 import com.company.ice.mygmail.di.PerActivity;
+import com.company.ice.mygmail.ui.detailedMessaage.DetailedMessageMvpPresenter;
+import com.company.ice.mygmail.ui.detailedMessaage.DetailedMessageMvpView;
+import com.company.ice.mygmail.ui.detailedMessaage.DetailedMessagePresenter;
 import com.company.ice.mygmail.ui.login.LoginMvpPresenter;
 import com.company.ice.mygmail.ui.login.LoginMvpView;
 import com.company.ice.mygmail.ui.login.LoginPresenter;
@@ -80,8 +83,16 @@ public class ActivityModule {
     }
 
     @Provides
+    @PerActivity
     MessagesListMvpPresenter<MessagesListMvpView> provideMessagesListPresenter(
             MessagesListPresenter<MessagesListMvpView> presenter) {
+        return presenter;
+    }
+
+    @Provides
+    @PerActivity
+    DetailedMessageMvpPresenter<DetailedMessageMvpView> provideDetailedMessageMvpPresenter(
+            DetailedMessagePresenter<DetailedMessageMvpView> presenter) {
         return presenter;
     }
 

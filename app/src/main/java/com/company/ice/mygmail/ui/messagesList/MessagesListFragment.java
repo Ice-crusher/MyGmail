@@ -1,9 +1,9 @@
 package com.company.ice.mygmail.ui.messagesList;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -11,14 +11,17 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import com.company.ice.mygmail.R;
 import com.company.ice.mygmail.data.network.model.Messages;
 import com.company.ice.mygmail.di.component.ActivityComponent;
 import com.company.ice.mygmail.ui.base.BaseFragment;
+import com.company.ice.mygmail.ui.base.CustomRVItemTouchListener;
+import com.company.ice.mygmail.ui.base.RecyclerViewItemClickListener;
 import com.company.ice.mygmail.ui.custom.SimpleDividerItemDecoration;
+import com.company.ice.mygmail.ui.main.MainActivity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -47,6 +50,11 @@ public class MessagesListFragment extends BaseFragment implements MessagesListMv
 
     @BindView(R.id.messages_recycler_view)
     RecyclerView mRecyclerView;
+
+    @BindView(R.id.swipeRefreshLayout)
+    SwipeRefreshLayout mSwipeRefreshLayout;
+
+    private boolean isLoadingMore;
 
     public MessagesListFragment() {
         // Required empty public constructor
@@ -79,7 +87,7 @@ public class MessagesListFragment extends BaseFragment implements MessagesListMv
         View view = inflater.inflate(R.layout.fragment_messages_list, container, false);
 
         ActivityComponent component = getActivityComponent();
-        if (component != null){
+        if (component != null) {
             component.inject(this);
             setUnBinder(ButterKnife.bind(this, view));
             mPresenter.onAttach(this);
@@ -92,30 +100,100 @@ public class MessagesListFragment extends BaseFragment implements MessagesListMv
 
     @Override
     protected void setUp(View view) {
+        isLoadingMore = false;
         mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(getContext()));
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
         mRecyclerView.setAdapter(mListAdapter);
+        mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                int visibleItemCount = mLayoutManager.getChildCount();
+                int totalItemCount = mLayoutManager.getItemCount();
+                int firstVisibleItemPosition = mLayoutManager.findFirstVisibleItemPosition();
+
+//                if (firstVisibleItemPosition < 3) {
+//                    mFloatingActionButton.hide();
+//                } else if (firstVisibleItemPosition > 3) {
+//                    mFloatingActionButton.show();
+//                }
+
+                if (dy > 0) //check for scroll down
+                    if (!isLoadingMore)
+                        if ((visibleItemCount + firstVisibleItemPosition) >= totalItemCount) {
+                            isLoadingMore = true;
+                            Log.d(TAG, "We need to load more!");
+                            mPresenter.onLoadMore();
+                        }
+            }
+        });
+
+        mRecyclerView.addOnItemTouchListener(new CustomRVItemTouchListener(getContext(), mRecyclerView, new RecyclerViewItemClickListener() {
+            @Override
+            public void onClick(View view, int position) {
+                mPresenter.onClickListElement(position);
+            }
+
+            @Override
+            public void onLongClick(View view, int position) {
+
+            }
+        }));
+
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                mSwipeRefreshLayout.setRefreshing(true);
+                mPresenter.onRefresh();
+            }
+        });
 
         mPresenter.onViewPrepared();
     }
 
     @Override
     public void onDestroy() {
-//        mPresenter.onDetach();
         super.onDestroy();
     }
 
     @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+    }
+
+    @Override
     public void updateMessages(List<Messages.ShortMessage> list) {
-        Log.d(TAG, list.get(0).getDescription());
+        mSwipeRefreshLayout.setRefreshing(false);
+        if (list.size() == 0) {
+            isLoadingMore = true;
+            hideLoading();
+            return;
+        }
         mListAdapter.addItems(list);
+        isLoadingMore = false;
+
+//        Log.d(TAG, list.get(0).getSubject());
         Log.d(TAG, String.valueOf(mListAdapter.getItemCount()));
+    }
+
+    @Override
+    public void refreshItems() {
+        mListAdapter.deleteItems();
+    }
+
+    @Override
+    public void callMainActivityClick(String id) {
+        ((ClickListener)getActivity()).onClick(id);
     }
 
     @Override
     public void onBlogEmptyViewRetryClick() {
 
+    }
+
+    public interface ClickListener {
+        void onClick(String id);
     }
 }

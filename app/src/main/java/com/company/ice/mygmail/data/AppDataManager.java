@@ -9,6 +9,7 @@ import com.company.ice.mygmail.di.ApplicationContext;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -48,9 +49,15 @@ public class AppDataManager implements DataManager {
     }
 
     @Override
-    public Observable<List<Messages.ShortMessage>> getShortMessageDescription() {
+    public Observable<List<Messages.ShortMessage>> getShortMessageDescription(boolean withResetToken) {
+        if (withResetToken) mApiHelper.resetToken();
 //        Log.d(TAG, "in method: " + credential.getSelectedAccountName());
 //        Log.d(TAG, "in global: " + mCredential.getSelectedAccountName());
         return mApiHelper.getShortMessageDescription(mCredential);
+    }
+
+    @Override
+    public Observable<Messages.FullMessage> getFullMessage(String id) {
+        return mApiHelper.getFullMessage(mCredential, id);
     }
 }

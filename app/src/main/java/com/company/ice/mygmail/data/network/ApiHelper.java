@@ -3,6 +3,7 @@ package com.company.ice.mygmail.data.network;
 import com.company.ice.mygmail.data.network.model.Messages;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.Observable;
@@ -13,5 +14,8 @@ import io.reactivex.Observable;
 
 public interface ApiHelper {
 
+    void resetToken();
+
     Observable<List<Messages.ShortMessage>> getShortMessageDescription(GoogleAccountCredential credential);
+    Observable<Messages.FullMessage> getFullMessage(GoogleAccountCredential credential, String id);
 }

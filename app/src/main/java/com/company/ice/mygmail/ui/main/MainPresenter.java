@@ -93,6 +93,7 @@ public class MainPresenter<V extends MainMvpView> extends BasePresenter<V>
             Log.e(TAG, "CREDENTIAL IS NULL, CAN'T SET HIM IN DATA_MANAGER");
         }
         getMvpView().insertMessageListFragment();
+//        getMvpView().insertDetailedMessageFragment("1615fea34980eeda");
     }
 
     /**

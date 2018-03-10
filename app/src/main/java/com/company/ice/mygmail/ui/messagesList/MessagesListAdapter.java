@@ -1,14 +1,10 @@
 package com.company.ice.mygmail.ui.messagesList;
 
-import android.content.Intent;
-import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.company.ice.mygmail.R;
@@ -36,6 +32,7 @@ public class MessagesListAdapter extends RecyclerView.Adapter<BaseViewHolder>{
 
     public static final int VIEW_TYPE_EMPTY = 0;
     public static final int VIEW_TYPE_NORMAL = 1;
+    public static final int VIEW_TYPE_FOOTER = 2;
 
     private Callback mCallback;
     private List<Messages.ShortMessage> mMessageList;
@@ -55,9 +52,13 @@ public class MessagesListAdapter extends RecyclerView.Adapter<BaseViewHolder>{
                 return new ViewHolder(
                         LayoutInflater.from(parent.getContext()).inflate(R.layout.item_message_view, parent, false));
             case VIEW_TYPE_EMPTY:
-            default:
                 return new EmptyViewHolder(
                         LayoutInflater.from(parent.getContext()).inflate(R.layout.item_empty_view, parent, false));
+            case VIEW_TYPE_FOOTER:
+            default:
+                return new FooterViewHolder(
+                        LayoutInflater.from(parent.getContext()).inflate(R.layout.item_footer_view, parent, false));
+
         }
     }
 
@@ -68,6 +69,8 @@ public class MessagesListAdapter extends RecyclerView.Adapter<BaseViewHolder>{
 
     @Override
     public int getItemViewType(int position) {
+        if(position == mMessageList.size()-1)
+            return VIEW_TYPE_FOOTER;
         if (mMessageList != null && mMessageList.size() > 0) {
             return VIEW_TYPE_NORMAL;
         } else {
@@ -85,8 +88,13 @@ public class MessagesListAdapter extends RecyclerView.Adapter<BaseViewHolder>{
     }
 
     public void addItems(List<Messages.ShortMessage> list) {
-//        mMessageList.addAll(list);
-        mMessageList = list;
+        mMessageList.addAll(list);
+//        mMessageList = list;
+        notifyDataSetChanged();
+    }
+
+    public void deleteItems(){
+        mMessageList.clear();
         notifyDataSetChanged();
     }
 
@@ -138,8 +146,8 @@ public class MessagesListAdapter extends RecyclerView.Adapter<BaseViewHolder>{
                 dateTextView.setText(shortMessage.getDate());
             }
 
-            if (shortMessage.getDescription() != null) {
-                contentTextView.setText(shortMessage.getDescription());
+            if (shortMessage.getSubject() != null) {
+                contentTextView.setText(shortMessage.getSubject());
             }
 
 //            itemView.setOnClickListener(new View.OnClickListener() {
@@ -181,6 +189,18 @@ public class MessagesListAdapter extends RecyclerView.Adapter<BaseViewHolder>{
         void onRetryClick() {
             if (mCallback != null)
                 mCallback.onBlogEmptyViewRetryClick();
+        }
+    }
+
+    public class FooterViewHolder extends BaseViewHolder {
+
+        public FooterViewHolder(View itemView) {
+            super(itemView);
+        }
+
+        @Override
+        protected void clear() {
+
         }
     }
 
