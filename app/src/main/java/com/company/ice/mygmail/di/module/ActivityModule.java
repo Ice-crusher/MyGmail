@@ -35,6 +35,8 @@ import com.company.ice.mygmail.ui.messagesList.MessagesListAdapter;
 import com.company.ice.mygmail.ui.messagesList.MessagesListMvpPresenter;
 import com.company.ice.mygmail.ui.messagesList.MessagesListMvpView;
 import com.company.ice.mygmail.ui.messagesList.MessagesListPresenter;
+import com.company.ice.mygmail.ui.sendingMessage.SendingMessageMvpPresenter;
+import com.company.ice.mygmail.ui.sendingMessage.SendingMessageMvpView;
 import com.company.ice.mygmail.utils.rx.AppSchedulerProvider;
 import com.company.ice.mygmail.utils.rx.SchedulerProvider;
 
@@ -97,7 +99,14 @@ public class ActivityModule {
     }
 
     @Provides
-    MessagesListAdapter provideBlogAdapter() {
+    @PerActivity
+    SendingMessageMvpPresenter<SendingMessageMvpView> provideSendingMessageMvpPresenter(
+            SendingMessageMvpPresenter<SendingMessageMvpView> presenter) {
+        return presenter;
+    }
+
+    @Provides
+    MessagesListAdapter provideMessagesListAdapter() {
         return new MessagesListAdapter(new ArrayList<Messages.ShortMessage>());
     }
 

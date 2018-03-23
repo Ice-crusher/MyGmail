@@ -15,6 +15,7 @@ import com.google.api.services.gmail.model.ListMessagesResponse;
 import com.google.api.services.gmail.model.Message;
 import com.google.api.services.gmail.model.MessagePart;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -23,6 +24,8 @@ import java.util.Date;
 import java.util.List;
 
 import javax.inject.Inject;
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
 
 import io.reactivex.Observable;
 
@@ -50,9 +53,19 @@ public class AppApiHelper implements ApiHelper {
         isFirstTime = true;
     }
 
+    private Gmail createGmailService(GoogleAccountCredential credential){
+        HttpTransport transport = AndroidHttp.newCompatibleTransport();
+        JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
+        Gmail mService = new Gmail.Builder(
+                transport, jsonFactory, credential)
+                .setApplicationName("Gmail API Android Quickstart")
+                .build();
+        return mService;
+    }
+
 
     @Override
-    public Observable<List<Messages.ShortMessage>> getShortMessageDescription(GoogleAccountCredential credential) {
+    public Observable<List<Messages.ShortMessage>> getShortMessageDescription(GoogleAccountCredential credential, String query) {
         Observable<List<Messages.ShortMessage>> observable = Observable.create(subscriber -> {
 
             HttpTransport transport = AndroidHttp.newCompatibleTransport();
@@ -62,7 +75,7 @@ public class AppApiHelper implements ApiHelper {
                     .setApplicationName("Gmail API Android Quickstart")
                     .build();
             try {
-                subscriber.onNext(getDataShortMessage(mService));
+                subscriber.onNext(getDataShortMessage(mService, query));
             } catch (Exception e) {
                 Log.d(TAG, e.toString());
                 subscriber.onError(e);
@@ -72,20 +85,21 @@ public class AppApiHelper implements ApiHelper {
         return Observable.defer(() -> observable);
     }
 
-    private List<Messages.ShortMessage> getDataShortMessage(Gmail service) throws IOException {
+    private List<Messages.ShortMessage> getDataShortMessage(Gmail service, String query) throws IOException {
         if (!isFirstTime && currentPageToken == null) return null;
 
         isFirstTime = false;
         // Get the labels in the user's account.
         String user = "me";
 
-        List<String> messageList = new ArrayList<>();
-        String query = "in:inbox";
-
         ListMessagesResponse messageResponse;
 //        if (currentPageToken != null) {
             messageResponse =
-                    service.users().messages().list(user).setPageToken(currentPageToken).setMaxResults(Long.valueOf(10)).execute();
+                    service.users().messages().list(user)
+                            .setPageToken(currentPageToken)
+                            .setMaxResults(Long.valueOf(10))
+                            .setQ(query)
+                            .execute();
 //        } else {
 //            messageResponse =
 //                    service.users().messages().list(user).setMaxResults(Long.valueOf(15)).execute();
@@ -100,15 +114,26 @@ public class AppApiHelper implements ApiHelper {
         for (Message message : messages) {
             Messages.ShortMessage shortMessage = new Messages.ShortMessage("Name", "Description", "01/01/2000", "00000000");
 
-            Message message2 = service.users().messages().get(user, message.getId()).setFormat("raw").execute();
+            Message message2 = service.users().messages().get(user, message.getId())
+                    .setFormat("metadata")
+                    .execute();
             Date date = new Date(message2.getInternalDate());
+
+            MessagePart payload = message2.getPayload();
+            if (payload == null) Log.d(TAG, "PART IS NULL");
+            else Log.d(TAG, payload.toPrettyString());
+
+            String auth = "Unnamed";
+            for (int i = 0; i < payload.getHeaders().size(); i++) {
+                if (payload.getHeaders().get(i).getName().equals("From"))
+                    auth = payload.getHeaders().get(i).getValue();
+            }
 
             DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
             String s =  formatter.format(date);
-
             shortMessage.setDate(s);
             shortMessage.setSubject(message2.getSnippet());
-            shortMessage.setAuthor("Author");
+            shortMessage.setAuthor(auth);
             shortMessage.setId(message.getId());
 
 //            Log.d(TAG, s);
@@ -151,10 +176,16 @@ public class AppApiHelper implements ApiHelper {
         Date date = new Date(message2.getInternalDate());
         DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
         String s =  formatter.format(date);
-//        String auth = message2.
         MessagePart payload = message2.getPayload();
         if (payload == null) Log.d(TAG, "PART IS NULL");
         else Log.d(TAG, payload.toPrettyString());
+
+        String auth = "Unnamed";
+        for (int i = 0; i < payload.getHeaders().size(); i++) {
+            if (payload.getHeaders().get(i).getName().equals("From"))
+                auth = payload.getHeaders().get(i).getValue();
+        }
+
         String text = StringUtils.newStringUtf8(Base64.decodeBase64(payload.getBody().getData()));
 //        String text = payload.getBody().getData();
         if (text != null) {
@@ -169,9 +200,45 @@ public class AppApiHelper implements ApiHelper {
         fullMessage.setDate(s);
         fullMessage.setSubject(message2.getSnippet());
 
-        fullMessage.setAuthor("Author");
+        fullMessage.setAuthor(auth);
         fullMessage.setId(id);
 
         return fullMessage;
+    }
+
+    @Override
+    public Observable<Message> sendMessage(GoogleAccountCredential credential, MimeMessage mimeMessage){
+ //           throws MessagingException, IOException {
+        Observable<Message> observable = Observable.create(subscriber -> {
+            Gmail service = createGmailService(credential);
+
+            Message message = createMessageWithEmail(mimeMessage);
+            String userId = credential.getSelectedAccountName();//test
+            message = service.users().messages().send(userId, message).execute();
+
+            Log.d(TAG, "Message id: " + message.getId());
+            Log.d(TAG, message.toPrettyString());
+            subscriber.onNext(message);
+        });
+        return observable;
+    }
+
+    /**
+     * Create a message from an email.
+     *
+     * @param emailContent Email to be set to raw of message
+     * @return a message containing a base64url encoded email
+     * @throws IOException
+     * @throws MessagingException
+     */
+    public static Message createMessageWithEmail(MimeMessage emailContent)
+            throws MessagingException, IOException {
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        emailContent.writeTo(buffer);
+        byte[] bytes = buffer.toByteArray();
+        String encodedEmail = Base64.encodeBase64URLSafeString(bytes);
+        Message message = new Message();
+        message.setRaw(encodedEmail);
+        return message;
     }
 }

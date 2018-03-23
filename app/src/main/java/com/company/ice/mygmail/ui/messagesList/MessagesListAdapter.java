@@ -1,6 +1,7 @@
 package com.company.ice.mygmail.ui.messagesList;
 
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -88,6 +89,9 @@ public class MessagesListAdapter extends RecyclerView.Adapter<BaseViewHolder>{
     }
 
     public void addItems(List<Messages.ShortMessage> list) {
+        Log.d(TAG, list.get(0).getAuthor());
+        Log.d(TAG, list.get(0).getDate());
+        Log.d(TAG, list.get(0).getSubject());
         mMessageList.addAll(list);
 //        mMessageList = list;
         notifyDataSetChanged();
@@ -172,8 +176,8 @@ public class MessagesListAdapter extends RecyclerView.Adapter<BaseViewHolder>{
 
     public class EmptyViewHolder extends BaseViewHolder {
 
-        @BindView(R.id.buttonRetryMessageLoad)
-        Button retryButton;
+//        @BindView(R.id.buttonRetryMessageLoad)
+//        Button retryButton;
 
         public EmptyViewHolder(View itemView) {
             super(itemView);
@@ -185,11 +189,11 @@ public class MessagesListAdapter extends RecyclerView.Adapter<BaseViewHolder>{
 
         }
 
-        @OnClick(R.id.buttonRetryMessageLoad)
-        void onRetryClick() {
-            if (mCallback != null)
-                mCallback.onBlogEmptyViewRetryClick();
-        }
+//        @OnClick(R.id.buttonRetryMessageLoad)
+//        void onRetryClick() {
+//            if (mCallback != null)
+//                mCallback.onBlogEmptyViewRetryClick();
+//        }
     }
 
     public class FooterViewHolder extends BaseViewHolder {

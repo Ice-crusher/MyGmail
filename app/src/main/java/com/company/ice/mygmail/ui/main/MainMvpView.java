@@ -16,6 +16,7 @@ public interface MainMvpView extends MvpView {
     void closeNavigationDrawer();
     void lockDrawer();
     void unlockDrawer();
-    void insertMessageListFragment();
+    void insertMessageListFragment(String query);
     void insertDetailedMessageFragment(String id);
+    void updateNavigationHeader(String name, String mailName);
 }

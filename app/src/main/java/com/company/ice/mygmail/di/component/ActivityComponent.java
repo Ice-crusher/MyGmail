@@ -21,6 +21,7 @@ import com.company.ice.mygmail.ui.detailedMessaage.DetailedMessageFragment;
 import com.company.ice.mygmail.ui.login.LoginActivity;
 import com.company.ice.mygmail.ui.main.MainActivity;
 import com.company.ice.mygmail.ui.messagesList.MessagesListFragment;
+import com.company.ice.mygmail.ui.sendingMessage.SendingMessageActivity;
 
 import dagger.Component;
 
@@ -34,6 +35,7 @@ public interface ActivityComponent {
 
     void inject(MainActivity activity);
     void inject(LoginActivity activity);
+    void inject(SendingMessageActivity activity);
     void inject(MessagesListFragment fragment);
     void inject(DetailedMessageFragment fragment);
 }

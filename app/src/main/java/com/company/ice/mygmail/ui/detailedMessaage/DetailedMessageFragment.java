@@ -41,9 +41,6 @@ public class DetailedMessageFragment extends BaseFragment implements DetailedMes
     @Inject
     DetailedMessageMvpPresenter<DetailedMessageMvpView> mPresenter;
 
-//    @BindView(R.id.message_content)
-//    WebView mWebView;
-
     @BindView(R.id.message_content_text)
     TextView mTextMessage;
 

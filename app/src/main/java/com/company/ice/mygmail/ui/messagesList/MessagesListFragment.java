@@ -37,6 +37,15 @@ import butterknife.ButterKnife;
  */
 public class MessagesListFragment extends BaseFragment implements MessagesListMvpView, MessagesListAdapter.Callback {
 
+    // TODO: Rename parameter arguments, choose names that match
+    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
+    private static final String ARG_PARAM1 = "query";
+    private static final String ARG_PARAM2 = "param2";
+
+    // TODO: Rename and change types of parameters
+    private String query;
+    private String mParam2;
+
     private static final String TAG = "MessagesListFragment";
 
     @Inject
@@ -51,7 +60,7 @@ public class MessagesListFragment extends BaseFragment implements MessagesListMv
     @BindView(R.id.messages_recycler_view)
     RecyclerView mRecyclerView;
 
-    @BindView(R.id.swipeRefreshLayout)
+    @BindView(R.id.swipe_refresh_layout)
     SwipeRefreshLayout mSwipeRefreshLayout;
 
     private boolean isLoadingMore;
@@ -63,11 +72,13 @@ public class MessagesListFragment extends BaseFragment implements MessagesListMv
     /**
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
+     * @param query arguments for filtration message relatively active item in left menu
      * @return A new instance of fragment MessagesListFragment.
      */
-    public static MessagesListFragment newInstance() {
+    public static MessagesListFragment newInstance(String query) {
         MessagesListFragment fragment = new MessagesListFragment();
         Bundle args = new Bundle();
+        args.putString(ARG_PARAM1, query);
         fragment.setArguments(args);
         return fragment;
     }
@@ -75,10 +86,9 @@ public class MessagesListFragment extends BaseFragment implements MessagesListMv
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        if (getArguments() != null) {
-//            mParam1 = getArguments().getString(ARG_PARAM1);
-//            mParam2 = getArguments().getString(ARG_PARAM2);
-//        }
+        if (getArguments() != null) {
+            query = getArguments().getString(ARG_PARAM1);
+        }
     }
 
     @Override
@@ -150,7 +160,8 @@ public class MessagesListFragment extends BaseFragment implements MessagesListMv
             }
         });
 
-        mPresenter.onViewPrepared();
+        mSwipeRefreshLayout.setRefreshing(true);
+        mPresenter.onViewPrepared(query);
     }
 
     @Override

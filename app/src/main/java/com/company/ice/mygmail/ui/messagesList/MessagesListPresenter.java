@@ -29,6 +29,8 @@ public class MessagesListPresenter<V extends MessagesListMvpView> extends BasePr
 
     private List<Messages.ShortMessage> mMessageList;
 
+    String query;
+
     @Inject
     public MessagesListPresenter(DataManager dataManager, SchedulerProvider schedulerProvider, CompositeDisposable compositeDisposable) {
         super(dataManager, schedulerProvider, compositeDisposable);
@@ -41,12 +43,13 @@ public class MessagesListPresenter<V extends MessagesListMvpView> extends BasePr
     }
 
     @Override
-    public void onViewPrepared() {
-        if (mMessageList != null & mMessageList.size() > 0){
-            Log.d(TAG, "Get data from PRESENTER (NOT FROM DATA_MANAGER)");
-            getMvpView().updateMessages(mMessageList);
-            return;
-        }
+    public void onViewPrepared(String query) {
+        this.query = query;
+//        if (mMessageList != null & mMessageList.size() > 0) {
+//            Log.d(TAG, "Get data from PRESENTER (NOT FROM DATA_MANAGER)");
+//            getMvpView().updateMessages(mMessageList);
+//            return;
+//        }
         loadMore(true);
     }
 
@@ -60,14 +63,16 @@ public class MessagesListPresenter<V extends MessagesListMvpView> extends BasePr
     @Override
     public void onClickListElement(int position) {
         //TODO change the way for do this
-        getMvpView().showMessage(String.valueOf(position));
+//        getMvpView().showMessage(String.valueOf(position));
         getMvpView().callMainActivityClick(mMessageList.get(position).getId());
     }
 
     private void loadMore(boolean withResetToken){
-        getMvpView().showLoading();
+//        getMvpView().showLoading();
+
+
         getCompositeDisposable().add(getDataManager()
-                .getShortMessageDescription(withResetToken)
+                .getShortMessageDescription(withResetToken, query)
                 .subscribeOn(getSchedulerProvider().io())
                 .observeOn(getSchedulerProvider().ui())
                 .subscribe(list -> {
@@ -91,7 +96,7 @@ public class MessagesListPresenter<V extends MessagesListMvpView> extends BasePr
                     getMvpView().showMessage("Request cancelled.");
                     Log.e(TAG, error.toString());
 
-                    getMvpView().hideLoading();
+//                    getMvpView().hideLoading();
                 })
         );
     }

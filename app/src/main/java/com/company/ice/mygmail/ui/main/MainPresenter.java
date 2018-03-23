@@ -7,6 +7,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.support.annotation.NonNull;
+import android.support.v4.app.FragmentActivity;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -18,8 +20,16 @@ import com.company.ice.mygmail.utils.CommonUtils;
 import com.company.ice.mygmail.utils.NetworkUtils;
 import com.company.ice.mygmail.utils.rx.SchedulerProvider;
 import com.google.android.gms.auth.GoogleAuthException;
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.common.api.Api;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.OptionalPendingResult;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.common.api.Status;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
@@ -34,7 +44,9 @@ import com.google.api.services.gmail.GmailScopes;
 import com.google.api.services.gmail.model.ListMessagesResponse;
 import com.google.api.services.gmail.model.Message;
 
+import java.io.FileDescriptor;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -59,6 +71,8 @@ public class MainPresenter<V extends MainMvpView> extends BasePresenter<V>
     private static final String TAG = "MainPresenter";
     private static final String PREF_ACCOUNT_NAME = "accountName";
 
+
+
     @Inject
     @ApplicationContext Context appContext;
 
@@ -73,6 +87,12 @@ public class MainPresenter<V extends MainMvpView> extends BasePresenter<V>
     @Override
     public void onNavMenuCreated() {
         // Fill NAVIGATION MENU OF INFORMATION
+    }
+
+    @Override
+    public void onNavMenuItemClick(String element){
+        getMvpView().showMessage("CLICK");
+        getMvpView().insertMessageListFragment(element);
     }
 
     @Override
@@ -92,7 +112,12 @@ public class MainPresenter<V extends MainMvpView> extends BasePresenter<V>
         } else {
             Log.e(TAG, "CREDENTIAL IS NULL, CAN'T SET HIM IN DATA_MANAGER");
         }
-        getMvpView().insertMessageListFragment();
+
+        // UPDATE NAV MENU
+        getMvpView().updateNavigationHeader("Name",
+                mCredential.getSelectedAccountName());
+
+        getMvpView().insertMessageListFragment(AppConstants.MESSAGE_QUERY.PRIMARY);
 //        getMvpView().insertDetailedMessageFragment("1615fea34980eeda");
     }
 
@@ -145,61 +170,5 @@ public class MainPresenter<V extends MainMvpView> extends BasePresenter<V>
         }
     }
 
-//    @Override
-//    public void onBackPressed() {
-//        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-//        if (drawer.isDrawerOpen(GravityCompat.START)) {
-//            drawer.closeDrawer(GravityCompat.START);
-//        } else {
-//            super.onBackPressed();
-//        }
-//    }
-//
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//        // Inflate the menu; this adds items to the action bar if it is present.
-//        getMenuInflater().inflate(R.menu.main, menu);
-//        return true;
-//    }
-//
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//        // Handle action bar item clicks here. The action bar will
-//        // automatically handle clicks on the Home/Up button, so long
-//        // as you specify a parent activity in AndroidManifest.xml.
-//        int id = item.getItemId();
-//
-//        //noinspection SimplifiableIfStatement
-//        if (id == R.id.action_settings) {
-//            return true;
-//        }
-//
-//        return super.onOptionsItemSelected(item);
-//    }
-//
-//    @SuppressWarnings("StatementWithEmptyBody")
-//    @Override
-//    public boolean onNavigationItemSelected(MenuItem item) {
-//        // Handle navigation view item clicks here.
-//        int id = item.getItemId();
-//
-//        if (id == R.id.nav_camera) {
-//            // Handle the camera action
-//        } else if (id == R.id.nav_gallery) {
-//
-//        } else if (id == R.id.nav_slideshow) {
-//
-//        } else if (id == R.id.nav_manage) {
-//
-//        } else if (id == R.id.nav_share) {
-//
-//        } else if (id == R.id.nav_send) {
-//
-//        }
-//
-//        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-//        drawer.closeDrawer(GravityCompat.START);
-//        return true;
-//    }
 }
 

@@ -4,7 +4,9 @@ import android.content.Context;
 import android.graphics.drawable.Animatable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
@@ -19,6 +21,7 @@ import com.company.ice.mygmail.ui.base.BaseActivity;
 import com.company.ice.mygmail.ui.detailedMessaage.DetailedMessageFragment;
 import com.company.ice.mygmail.ui.login.LoginActivity;
 import com.company.ice.mygmail.ui.messagesList.MessagesListFragment;
+import com.company.ice.mygmail.ui.sendingMessage.SendingMessageActivity;
 import com.company.ice.mygmail.utils.AppConstants;
 import com.company.ice.mygmail.utils.CommonUtils;
 import com.google.android.gms.common.ConnectionResult;
@@ -85,6 +88,12 @@ public class MainActivity extends BaseActivity
     @BindView(R.id.navigation_view)
     NavigationView mNavigationView;
 
+    @BindView(R.id.fab)
+    FloatingActionButton mFloatingActionButton;
+
+    TextView mNameTextView;
+    TextView mEmailTextView;
+
     private ActionBarDrawerToggle mDrawerToggle;
 
     @Override
@@ -115,19 +124,23 @@ public class MainActivity extends BaseActivity
     }
 
     @Override
-    public void insertMessageListFragment(){
-        MessagesListFragment fragment = null;
-        FragmentManager supportFragmentManager  = getSupportFragmentManager();
-        fragment = (MessagesListFragment)supportFragmentManager.findFragmentById(R.id.messages_frame_layout);
-        if (fragment == null){
-            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-            fragment = new MessagesListFragment();
-            fragmentTransaction.replace(R.id.messages_frame_layout, fragment);
-            //fragmentTransaction.addToBackStack(null);
-            fragmentTransaction.setTransition(android.app.FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-            fragmentTransaction.commit();
+    public void insertMessageListFragment(String query) {
+
+        Fragment fragment = null;
+        FragmentManager supportFragmentManager = getSupportFragmentManager();
+        fragment = supportFragmentManager.findFragmentById(R.id.messages_frame_layout);
+
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        if (fragment != null) {
+            fragmentTransaction.addToBackStack(null);
         }
+        fragment = MessagesListFragment.newInstance(query);
+        fragmentTransaction.replace(R.id.messages_frame_layout, fragment);
+
+        fragmentTransaction.setTransition(android.app.FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+        fragmentTransaction.commit();
     }
+
 
     @Override
     public void insertDetailedMessageFragment(String id) {
@@ -182,34 +195,49 @@ public class MainActivity extends BaseActivity
     }
 
     void setupNavMenu(){
-//        View headerLayout = mNavigationView.getHeaderView(0);
-//        mProfileImageView = (RoundedImageView) headerLayout.findViewById(R.id.iv_profile_pic);
-//        mNameTextView = (TextView) headerLayout.findViewById(R.id.tv_name);
-//        mEmailTextView = (TextView) headerLayout.findViewById(R.id.tv_email);
-//
-//        mNavigationView.setNavigationItemSelectedListener(
-//                new NavigationView.OnNavigationItemSelectedListener() {
-//                    @Override
-//                    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-//                        mDrawer.closeDrawer(GravityCompat.START);
-//                        switch (item.getItemId()) {
-//                            case R.id.nav_item_about:
-//                                mPresenter.onDrawerOptionAboutClick();
-//                                return true;
-//                            case R.id.nav_item_rate_us:
-//                                mPresenter.onDrawerRateUsClick();
-//                                return true;
-//                            case R.id.nav_item_feed:
-//                                mPresenter.onDrawerMyFeedClick();
-//                                return true;
-//                            case R.id.nav_item_logout:
-//                                mPresenter.onDrawerOptionLogoutClick();
-//                                return true;
-//                            default:
-//                                return false;
-//                        }
-//                    }
-//                });
+        View headerLayout = mNavigationView.getHeaderView(0);
+ //       mProfileImageView = (RoundedImageView) headerLayout.findViewById(R.id.iv_profile_pic);
+        mNameTextView = (TextView) headerLayout.findViewById(R.id.nav_name);
+        mEmailTextView = (TextView) headerLayout.findViewById(R.id.nav_mail_name);
+
+        mNavigationView.setNavigationItemSelectedListener(
+                new NavigationView.OnNavigationItemSelectedListener() {
+                    @Override
+                    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                        mDrawer.closeDrawer(GravityCompat.START);
+                        switch (item.getItemId()) {
+                            case R.id.nav_primary:
+                                mPresenter.onNavMenuItemClick(AppConstants.MESSAGE_QUERY.PRIMARY);
+                                return true;
+                            case R.id.nav_starred:
+                                mPresenter.onNavMenuItemClick(AppConstants.MESSAGE_QUERY.STARRED);
+                                return true;
+                            case R.id.nav_important:
+                                mPresenter.onNavMenuItemClick(AppConstants.MESSAGE_QUERY.IMPORTANT);
+                                return true;
+                            case R.id.nav_sent:
+                                mPresenter.onNavMenuItemClick(AppConstants.MESSAGE_QUERY.SENT);
+                                return true;
+                            case R.id.nav_drafts:
+                                mPresenter.onNavMenuItemClick(AppConstants.MESSAGE_QUERY.DRAFTS);
+                                return true;
+                            case R.id.nav_spam:
+                                mPresenter.onNavMenuItemClick(AppConstants.MESSAGE_QUERY.SPAM);
+                                return true;
+                            case R.id.nav_trash:
+                                mPresenter.onNavMenuItemClick(AppConstants.MESSAGE_QUERY.TRASH);
+                                return true;
+                            default:
+                                return false;
+                        }
+                    }
+                });
+    }
+
+    @Override
+    public void updateNavigationHeader(String name, String mailName) {
+        mNameTextView.setText(name);
+        mEmailTextView.setText(mailName);
     }
 
     @Override
@@ -244,7 +272,7 @@ public class MainActivity extends BaseActivity
             ((Animatable) drawable).start();
         }
         switch (item.getItemId()) {
-            case R.id.action_settings:
+            case R.id.action_log_out:
 //                mPresenter.onLogOutClick();
                 startLoginActivity();
                 return true;
@@ -361,4 +389,18 @@ public class MainActivity extends BaseActivity
         insertDetailedMessageFragment(id);
     }
 
+    @OnClick(R.id.fab)
+    public void OnFabClick(View view){
+        startActivity(SendingMessageActivity.getStartIntent(this));
+    }
+
+    @Override
+    public void onBackPressed() {
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
+    }
 }

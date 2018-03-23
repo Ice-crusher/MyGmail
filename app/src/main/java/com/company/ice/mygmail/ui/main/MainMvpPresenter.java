@@ -12,5 +12,6 @@ import com.company.ice.mygmail.ui.base.MvpPresenter;
 public interface MainMvpPresenter<V extends MainMvpView> extends MvpPresenter<V> {
     void onActivityResultFromView(int requestCode, int resultCode, Intent data);
     void onNavMenuCreated();
+    void onNavMenuItemClick(String element);
 //    void onLogOutClick();
 }

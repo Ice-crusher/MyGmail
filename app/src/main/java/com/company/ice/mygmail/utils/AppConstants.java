@@ -28,6 +28,16 @@ public final class AppConstants {
     public static final String SHARED_PREFERENCE_TAG = "MyGmail";
     public static final String PREF_ACCOUNT_NAME = "accountName";
 
+    public final static class MESSAGE_QUERY{
+        public static final String PRIMARY = "in:inbox";
+        public static final String STARRED = "in:starred";
+        public static final  String IMPORTANT = "in:trash";
+        public static final  String SENT = "in:sent";
+        public static final  String DRAFTS = "in:drafts";
+        public static final  String SPAM = "in:spam";
+        public static final  String TRASH = "in:trash";
+    }
+
 
 //    public static final String DB_NAME = "mindorks_mvp.db";
 //    public static final String PREF_NAME = "mindorks_pref";

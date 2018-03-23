@@ -1,5 +1,7 @@
 package com.company.ice.mygmail;
 
+import android.app.Application;
+
 import com.company.ice.mygmail.data.DataManager;
 import com.company.ice.mygmail.di.component.ApplicationComponent;
 import com.company.ice.mygmail.di.component.DaggerApplicationComponent;
@@ -11,7 +13,7 @@ import javax.inject.Inject;
  * Created by Ice on 19.11.2017.
  */
 
-public class MvpApplication extends android.app.Application {
+public class MvpApplication extends Application {
 
     @Inject
     DataManager mDataManager;

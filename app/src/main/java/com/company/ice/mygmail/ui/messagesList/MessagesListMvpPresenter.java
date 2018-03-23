@@ -8,7 +8,7 @@ import com.company.ice.mygmail.ui.base.MvpPresenter;
 
 public interface MessagesListMvpPresenter<V extends MessagesListMvpView> extends MvpPresenter<V> {
 
-    void onViewPrepared();
+    void onViewPrepared(String query);
     void onLoadMore();
     void onRefresh();
     void onClickListElement(int position);
