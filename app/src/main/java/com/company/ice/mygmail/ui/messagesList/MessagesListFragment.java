@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 
 import com.company.ice.mygmail.R;
 import com.company.ice.mygmail.data.network.model.Messages;
@@ -46,7 +47,7 @@ public class MessagesListFragment extends BaseFragment implements MessagesListMv
     private String query;
     private String mParam2;
 
-    private static final String TAG = "MessagesListFragment";
+    public static final String TAG = "MessagesListFragment";
 
     @Inject
     MessagesListMvpPresenter<MessagesListMvpView> mPresenter;
@@ -63,7 +64,10 @@ public class MessagesListFragment extends BaseFragment implements MessagesListMv
     @BindView(R.id.swipe_refresh_layout)
     SwipeRefreshLayout mSwipeRefreshLayout;
 
+//    ProgressBar mProgressBarLoadingItems; // not work
+
     private boolean isLoadingMore;
+    private boolean isNewFragment;
 
     public MessagesListFragment() {
         // Required empty public constructor
@@ -86,9 +90,18 @@ public class MessagesListFragment extends BaseFragment implements MessagesListMv
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        isNewFragment = true;
+        Log.d(TAG, "onCreate");
         if (getArguments() != null) {
             query = getArguments().getString(ARG_PARAM1);
         }
+    }
+
+    @Override
+    public void onStart() {
+        Log.d(TAG, "onStart");
+        super.onStart();
     }
 
     @Override
@@ -96,14 +109,21 @@ public class MessagesListFragment extends BaseFragment implements MessagesListMv
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_messages_list, container, false);
 
+        Log.d(TAG, "onCreateView");
         ActivityComponent component = getActivityComponent();
         if (component != null) {
+            Log.d(TAG, "Inject component in onCreateView");
             component.inject(this);
             setUnBinder(ButterKnife.bind(this, view));
             mPresenter.onAttach(this);
             mListAdapter.setCallback(this);
         }
+        if (isNewFragment) {
+            mPresenter.onNewFragmentAttached();
+            isNewFragment = false;
+        }
 
+//        mProgressBarLoadingItems = mRecyclerView.findViewById(R.id.list_loading_progressBar); // not work
         // Inflate the layout for this fragment
         return view;
     }
@@ -129,14 +149,19 @@ public class MessagesListFragment extends BaseFragment implements MessagesListMv
 //                } else if (firstVisibleItemPosition > 3) {
 //                    mFloatingActionButton.show();
 //                }
-
+//                Log.d(TAG, String.valueOf(isLoadingMore));
                 if (dy > 0) //check for scroll down
-                    if (!isLoadingMore)
+                    if (!isLoadingMore) {
                         if ((visibleItemCount + firstVisibleItemPosition) >= totalItemCount) {
+//                            mProgressBarLoadingItems.setVisibility(View.VISIBLE); // not work
                             isLoadingMore = true;
                             Log.d(TAG, "We need to load more!");
                             mPresenter.onLoadMore();
                         }
+                    } else {
+//                        mProgressBarLoadingItems.setVisibility(View.INVISIBLE); // not work
+                    }
+
             }
         });
 
@@ -166,13 +191,31 @@ public class MessagesListFragment extends BaseFragment implements MessagesListMv
 
     @Override
     public void onDestroy() {
+        Log.d(TAG, "onDestroy");
         super.onDestroy();
     }
 
     @Override
     public void onAttach(Context context) {
+        Log.d(TAG, "onAttach");
         super.onAttach(context);
+//        mPresenter.onNewFragmentAttached();
     }
+
+    @Override
+    public void onDetach() {
+        Log.d(TAG, "onDetach");
+        super.onDetach();
+    }
+
+    @Override
+    public void onDestroyView() {
+        mPresenter.onDetach();
+        super.onDestroyView();
+    }
+
+
+
 
     @Override
     public void updateMessages(List<Messages.ShortMessage> list) {
@@ -182,11 +225,12 @@ public class MessagesListFragment extends BaseFragment implements MessagesListMv
             hideLoading();
             return;
         }
+        Log.d(TAG, "List is not empty. Amount: " + list.size());
         mListAdapter.addItems(list);
         isLoadingMore = false;
 
 //        Log.d(TAG, list.get(0).getSubject());
-        Log.d(TAG, String.valueOf(mListAdapter.getItemCount()));
+//        Log.d(TAG, String.valueOf(mListAdapter.getItemCount()));
     }
 
     @Override

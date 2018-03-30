@@ -18,6 +18,13 @@ public class Messages {
             this.id = id;
         }
 
+        public ShortMessage(ShortMessage shortMessage){
+            this.author = shortMessage.author;
+            this.subject = shortMessage.subject;
+            this.date = shortMessage.date;
+            this.id = shortMessage.id;
+        }
+
         public String getAuthor() {
             return author;
         }
@@ -62,6 +69,11 @@ public class Messages {
         public FullMessage(String author, String subject, String date, String id, String text) {
             super(author, subject, date, id);
             this.text = text;
+        }
+
+        public FullMessage(FullMessage fullMessage) {
+            super((ShortMessage) fullMessage);
+            this.text = fullMessage.text;
         }
 
         public String getText() {

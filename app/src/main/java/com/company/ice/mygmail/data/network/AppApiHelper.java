@@ -14,6 +14,7 @@ import com.google.api.services.gmail.Gmail;
 import com.google.api.services.gmail.model.ListMessagesResponse;
 import com.google.api.services.gmail.model.Message;
 import com.google.api.services.gmail.model.MessagePart;
+import com.google.api.services.gmail.model.MessagePartHeader;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -173,17 +174,23 @@ public class AppApiHelper implements ApiHelper {
         Messages.FullMessage fullMessage = new Messages.FullMessage("Name", "Description", "01/01/2000", "00000000", "text");
 
         Message message2 = service.users().messages().get(user, id).setFormat("full").execute();
-        Date date = new Date(message2.getInternalDate());
+
+        Date d = new Date(message2.getInternalDate());
         DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
-        String s =  formatter.format(date);
+        String date =  formatter.format(d);
+
         MessagePart payload = message2.getPayload();
         if (payload == null) Log.d(TAG, "PART IS NULL");
         else Log.d(TAG, payload.toPrettyString());
 
         String auth = "Unnamed";
+        String subject = "Subject";
         for (int i = 0; i < payload.getHeaders().size(); i++) {
-            if (payload.getHeaders().get(i).getName().equals("From"))
-                auth = payload.getHeaders().get(i).getValue();
+            MessagePartHeader curHeader = payload.getHeaders().get(i);
+            if (curHeader.getName().equals("From"))
+                auth = curHeader.getValue();
+            if (curHeader.getName().equals("Subject"))
+                subject = curHeader.getValue();
         }
 
         String text = StringUtils.newStringUtf8(Base64.decodeBase64(payload.getBody().getData()));
@@ -197,8 +204,8 @@ public class AppApiHelper implements ApiHelper {
             Log.d(TAG, text);
         }
         fullMessage.setText(text);
-        fullMessage.setDate(s);
-        fullMessage.setSubject(message2.getSnippet());
+        fullMessage.setDate(date);
+        fullMessage.setSubject(subject);
 
         fullMessage.setAuthor(auth);
         fullMessage.setId(id);

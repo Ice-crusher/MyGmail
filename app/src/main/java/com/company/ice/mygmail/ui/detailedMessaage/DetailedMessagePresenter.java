@@ -3,6 +3,7 @@ package com.company.ice.mygmail.ui.detailedMessaage;
 import android.util.Log;
 
 import com.company.ice.mygmail.data.DataManager;
+import com.company.ice.mygmail.data.network.model.Messages;
 import com.company.ice.mygmail.ui.base.BasePresenter;
 import com.company.ice.mygmail.ui.login.LoginPresenter;
 import com.company.ice.mygmail.utils.rx.SchedulerProvider;
@@ -20,6 +21,8 @@ public class DetailedMessagePresenter<V extends DetailedMessageMvpView> extends 
 
     private static final String TAG = "DetailedMessagePresent";
 
+    Messages.FullMessage mFullMessage;
+
     @Inject
     public DetailedMessagePresenter(DataManager dataManager, SchedulerProvider schedulerProvider, CompositeDisposable compositeDisposable) {
         super(dataManager, schedulerProvider, compositeDisposable);
@@ -31,6 +34,23 @@ public class DetailedMessagePresenter<V extends DetailedMessageMvpView> extends 
         load(id);
     }
 
+    @Override
+    public void onReplyClick() {
+        if (mFullMessage == null) return;
+        Messages.FullMessage temp = new Messages.FullMessage(mFullMessage);
+        //temp.set
+        getMvpView().sendMessageFormCall(temp);
+    }
+
+    @Override
+    public void onForwardClick() {
+        if (mFullMessage == null) return;
+        Messages.FullMessage temp = new Messages.FullMessage(mFullMessage);
+        temp.setAuthor("");
+        getMvpView().sendMessageFormCall(temp);
+    }
+
+
     private void load(String id){
         Log.d(TAG, "ID : " + id);
         getMvpView().showLoading();
@@ -41,6 +61,7 @@ public class DetailedMessagePresenter<V extends DetailedMessageMvpView> extends 
                 .observeOn(getSchedulerProvider().ui())
                 .subscribe(message -> {
                     getMvpView().hideLoading();
+                    mFullMessage = message;
                     getMvpView().fillMessage(message);
 //                    Log.d(TAG, message.toString());
                 }, error -> {

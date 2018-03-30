@@ -7,4 +7,7 @@ import com.company.ice.mygmail.ui.base.MvpView;
  */
 
 public interface SendingMessageMvpView extends MvpView {
+    void fillView(String from, String to, String subject, String text);
+    void setCursorPositionFieldText(int pos);
+    void setCursorPositionFieldTo(int pos);
 }

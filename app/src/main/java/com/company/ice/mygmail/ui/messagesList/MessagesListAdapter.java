@@ -6,8 +6,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.amulyakhare.textdrawable.TextDrawable;
+import com.amulyakhare.textdrawable.util.ColorGenerator;
 import com.company.ice.mygmail.R;
 import com.company.ice.mygmail.data.network.model.Messages;
 import com.company.ice.mygmail.ui.base.BaseViewHolder;
@@ -70,7 +73,7 @@ public class MessagesListAdapter extends RecyclerView.Adapter<BaseViewHolder>{
 
     @Override
     public int getItemViewType(int position) {
-        if(position == mMessageList.size()-1)
+        if(position == mMessageList.size() & position != 0)
             return VIEW_TYPE_FOOTER;
         if (mMessageList != null && mMessageList.size() > 0) {
             return VIEW_TYPE_NORMAL;
@@ -81,10 +84,10 @@ public class MessagesListAdapter extends RecyclerView.Adapter<BaseViewHolder>{
 
     @Override
     public int getItemCount() {
-        if (mMessageList != null && mMessageList.size() > 0) {
-            return mMessageList.size();
-        } else {
+        if (mMessageList.isEmpty()) {
             return 1;
+        } else {
+            return mMessageList.size()+1;
         }
     }
 
@@ -120,6 +123,9 @@ public class MessagesListAdapter extends RecyclerView.Adapter<BaseViewHolder>{
         @BindView(R.id.content_text_view)
         TextView contentTextView;
 
+        @BindView(R.id.avatar_imageView)
+        ImageView avatar;
+
         public ViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
@@ -145,14 +151,19 @@ public class MessagesListAdapter extends RecyclerView.Adapter<BaseViewHolder>{
             if (shortMessage.getAuthor() != null) {
                 authorTextView.setText(shortMessage.getAuthor());
             }
-
             if (shortMessage.getDate() != null) {
                 dateTextView.setText(shortMessage.getDate());
             }
-
             if (shortMessage.getSubject() != null) {
                 contentTextView.setText(shortMessage.getSubject());
             }
+
+            char letter = shortMessage.getAuthor().charAt(0);
+            ColorGenerator generator = ColorGenerator.MATERIAL;
+            int color = generator.getColor(shortMessage.getAuthor());
+            TextDrawable drawable = TextDrawable.builder()
+                    .buildRound(String.valueOf(letter), color);
+            avatar.setImageDrawable(drawable);
 
 //            itemView.setOnClickListener(new View.OnClickListener() {
 //                @Override

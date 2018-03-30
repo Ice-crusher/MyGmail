@@ -45,11 +45,11 @@ public class MessagesListPresenter<V extends MessagesListMvpView> extends BasePr
     @Override
     public void onViewPrepared(String query) {
         this.query = query;
-//        if (mMessageList != null & mMessageList.size() > 0) {
-//            Log.d(TAG, "Get data from PRESENTER (NOT FROM DATA_MANAGER)");
-//            getMvpView().updateMessages(mMessageList);
-//            return;
-//        }
+        if (mMessageList != null & mMessageList.size() > 0) {
+            Log.d(TAG, "Get data from PRESENTER (NOT FROM DATA_MANAGER)");
+            getMvpView().updateMessages(mMessageList);
+            return;
+        }
         loadMore(true);
     }
 
@@ -69,9 +69,8 @@ public class MessagesListPresenter<V extends MessagesListMvpView> extends BasePr
 
     private void loadMore(boolean withResetToken){
 //        getMvpView().showLoading();
-
-
-        getCompositeDisposable().add(getDataManager()
+//        getCompositeDisposable().add( //NOT WORKING in BAsePresenter when detached .dispose block all new thread
+        getDataManager()
                 .getShortMessageDescription(withResetToken, query)
                 .subscribeOn(getSchedulerProvider().io())
                 .observeOn(getSchedulerProvider().ui())
@@ -85,6 +84,7 @@ public class MessagesListPresenter<V extends MessagesListMvpView> extends BasePr
                     }
 
                 }, error -> {
+                    Log.e(TAG, error.toString());
                     if (!isViewAttached()) {
                         return;
                     }
@@ -97,7 +97,26 @@ public class MessagesListPresenter<V extends MessagesListMvpView> extends BasePr
                     Log.e(TAG, error.toString());
 
 //                    getMvpView().hideLoading();
-                })
-        );
+                });
+    }
+
+
+
+    @Override
+    public void onAttach(V mvpView) {
+        Log.d(TAG, "onAttach");
+        super.onAttach(mvpView);
+    }
+
+    @Override
+    public void onDetach() {
+        Log.d(TAG, "onDetach");
+        super.onDetach();
+    }
+
+    @Override
+    public void onNewFragmentAttached() {
+        Log.d(TAG, "New fragment ATTACHED");
+        mMessageList.clear();
     }
 }

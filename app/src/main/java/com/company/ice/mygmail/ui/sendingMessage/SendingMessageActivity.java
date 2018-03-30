@@ -17,6 +17,7 @@ import com.company.ice.mygmail.ui.login.LoginActivity;
 import com.company.ice.mygmail.ui.login.LoginMvpPresenter;
 import com.company.ice.mygmail.ui.login.LoginMvpView;
 import com.google.android.gms.common.SignInButton;
+import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 
 import javax.inject.Inject;
 
@@ -26,6 +27,12 @@ import butterknife.ButterKnife;
 public class SendingMessageActivity extends BaseActivity implements SendingMessageMvpView {
 
     private static final String TAG = "SendingMessageActivity";
+
+ //   public static final String FROM = "extra_from";
+    public static final String TO = "extra_to";
+    public static final String SUBJECT = "extra_subject";
+    public static final String TEXT = "extra_text";
+
     @Inject
     SendingMessagePresenter<SendingMessageMvpView> mPresenter;
 
@@ -48,7 +55,9 @@ public class SendingMessageActivity extends BaseActivity implements SendingMessa
         setContentView(R.layout.activity_sending_message);
         setUnBinder(ButterKnife.bind(this));
         setUp();
+
         mPresenter.onAttach(SendingMessageActivity.this);
+        mPresenter.onViewPrepared(getIntent().getExtras());
     }
 
     @Override
@@ -56,8 +65,24 @@ public class SendingMessageActivity extends BaseActivity implements SendingMessa
 
     }
 
+    @Override
+    public void fillView(String from, String to, String subject, String text){
+        mEditTextFrom.setText(from);
+        mEditTextTo.setText(to);
+        mEditTextSubject.setText(subject);
+        mEditTextMail.setText(text);
+    }
+
     public static Intent getStartIntent(Context context){
         Intent intent = new Intent(context, SendingMessageActivity.class);
+        return intent;
+    }
+    public static Intent getStartIntent(Context context, String to, String subject, String text){
+        Intent intent = new Intent(context, SendingMessageActivity.class);
+ //       intent.putExtra(FROM, from);
+        intent.putExtra(TO, to);
+        intent.putExtra(SUBJECT, subject);
+        intent.putExtra(TEXT, text);
         return intent;
     }
 
@@ -85,5 +110,17 @@ public class SendingMessageActivity extends BaseActivity implements SendingMessa
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    @Override
+    public void setCursorPositionFieldText(int pos) {
+        mEditTextMail.requestFocus();
+        mEditTextMail.setSelection(pos);
+    }
+
+    @Override
+    public void setCursorPositionFieldTo(int pos) {
+        mEditTextTo.requestFocus();
+        mEditTextTo.setSelection(pos);
     }
 }

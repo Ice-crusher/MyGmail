@@ -9,4 +9,5 @@ import com.company.ice.mygmail.ui.base.MvpView;
 
 public interface DetailedMessageMvpView extends MvpView{
     void fillMessage(Messages.FullMessage fullMessage);
+    void sendMessageFormCall(Messages.FullMessage fullMessage);
 }

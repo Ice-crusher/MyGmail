@@ -54,6 +54,10 @@ public class AppDataManager implements DataManager {
 //        mFirebaseAuth = FirebaseAuth.getInstance();
     }
 
+    public GoogleAccountCredential getCredential() {
+        return mCredential;
+    }
+
     @Override
     public void setCredential(GoogleAccountCredential credential) {
         mCredential = credential;
@@ -69,7 +73,13 @@ public class AppDataManager implements DataManager {
         if (withResetToken) mApiHelper.resetToken();
 //        Log.d(TAG, "in method: " + credential.getSelectedAccountName());
 //        Log.d(TAG, "in global: " + mCredential.getSelectedAccountName());
-        return mApiHelper.getShortMessageDescription(mCredential, query);
+        Log.d(TAG, "getShortMessageDescription() \n" +
+                "With reset token: " + String.valueOf(withResetToken) + "\n" +
+                "Query: " + query);
+        Observable<List<Messages.ShortMessage>> observable = mApiHelper.getShortMessageDescription(mCredential, query);
+
+        Log.d(TAG, "return Observable in AppDataManager: " + observable.toString());
+        return observable;
     }
 
     @Override

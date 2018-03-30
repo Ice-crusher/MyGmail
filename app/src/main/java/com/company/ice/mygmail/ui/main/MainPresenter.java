@@ -13,8 +13,11 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.company.ice.mygmail.data.DataManager;
+import com.company.ice.mygmail.data.network.model.Messages;
+import com.company.ice.mygmail.di.ActivityContext;
 import com.company.ice.mygmail.di.ApplicationContext;
 import com.company.ice.mygmail.ui.base.BasePresenter;
+import com.company.ice.mygmail.ui.sendingMessage.SendingMessageActivity;
 import com.company.ice.mygmail.utils.AppConstants;
 import com.company.ice.mygmail.utils.CommonUtils;
 import com.company.ice.mygmail.utils.NetworkUtils;
@@ -77,6 +80,9 @@ public class MainPresenter<V extends MainMvpView> extends BasePresenter<V>
     @ApplicationContext Context appContext;
 
     @Inject
+    @ActivityContext Context mActivity;
+
+    @Inject
     GoogleAccountCredential mCredential;
 
     @Inject
@@ -91,8 +97,20 @@ public class MainPresenter<V extends MainMvpView> extends BasePresenter<V>
 
     @Override
     public void onNavMenuItemClick(String element){
-        getMvpView().showMessage("CLICK");
         getMvpView().insertMessageListFragment(element);
+    }
+
+    @Override
+    public void onFABClick() {
+        getMvpView().startSendFormActivity(SendingMessageActivity.getStartIntent(mActivity));
+    }
+
+    @Override
+    public void onClickResendButtons(Messages.FullMessage fullMessage){
+        getMvpView().startSendFormActivity(SendingMessageActivity.getStartIntent(mActivity,
+                fullMessage.getAuthor(),
+                fullMessage.getSubject(),
+                fullMessage.getText()) );
     }
 
     @Override

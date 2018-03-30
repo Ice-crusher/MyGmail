@@ -3,7 +3,13 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
+    <color name="transparency">#00ffffff</color>
 
+    <color name="activityBackground">#ebebeb</color>
     <color name="white">#FFFFFF</color>
     <color name="colorBackgroundForPagination">#cccccc</color>
+
+    <color name="colorDivider">#b3b3b3</color>
+    <color name="colorDetailedButtonText">#292929</color>
+
 </resources>

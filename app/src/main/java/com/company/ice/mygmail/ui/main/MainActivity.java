@@ -17,6 +17,7 @@ import android.util.Log;
 
 import com.company.ice.mygmail.R;
 import com.company.ice.mygmail.data.DataManager;
+import com.company.ice.mygmail.data.network.model.Messages;
 import com.company.ice.mygmail.ui.base.BaseActivity;
 import com.company.ice.mygmail.ui.detailedMessaage.DetailedMessageFragment;
 import com.company.ice.mygmail.ui.login.LoginActivity;
@@ -72,9 +73,9 @@ import static com.company.ice.mygmail.utils.AppConstants.REQUEST_PERMISSION_GET_
 public class MainActivity extends BaseActivity
         implements
 //        NavigationView.OnNavigationItemSelectedListener,
-        EasyPermissions.PermissionCallbacks, MainMvpView, MessagesListFragment.ClickListener {
+        EasyPermissions.PermissionCallbacks, MainMvpView, MessagesListFragment.ClickListener , DetailedMessageFragment.ClickResendButtonsListener{
 
-    public static final String TAG = "Main1";
+    public static final String TAG = "MainActivity";
 
     @Inject
     MainMvpPresenter<MainMvpView> mPresenter;
@@ -111,12 +112,11 @@ public class MainActivity extends BaseActivity
 //            mPresenter.onCallGoogleApi();
 //            mCallApiButton.setEnabled(true);
 //        });
-
-
-
         setUp();
         mPresenter.onAttach(MainActivity.this);
     }
+
+
 
     public static Intent getStartIntent(Context context){
         Intent intent = new Intent(context, MainActivity.class);
@@ -135,20 +135,36 @@ public class MainActivity extends BaseActivity
             fragmentTransaction.addToBackStack(null);
         }
         fragment = MessagesListFragment.newInstance(query);
-        fragmentTransaction.replace(R.id.messages_frame_layout, fragment);
+        fragmentTransaction.replace(R.id.messages_frame_layout, fragment, MessagesListFragment.TAG);
 
         fragmentTransaction.setTransition(android.app.FragmentTransaction.TRANSIT_FRAGMENT_FADE);
         fragmentTransaction.commit();
     }
 
+    @Override
+    public void onFragmentAttached(String tag) {
+        if (tag.equals(MessagesListFragment.TAG))
+            mFloatingActionButton.show();
+        if (tag.equals(DetailedMessageFragment.TAG))
+            mFloatingActionButton.hide();
+        super.onFragmentAttached(tag);
+    }
+
+    @Override
+    public void onFragmentDetached(String tag) {
+        if (mFloatingActionButton != null & tag.equals(DetailedMessageFragment.TAG))
+            mFloatingActionButton.show();
+        super.onFragmentDetached(tag);
+    }
 
     @Override
     public void insertDetailedMessageFragment(String id) {
         DetailedMessageFragment fragment = DetailedMessageFragment.newInstance(id, "some");
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.messages_frame_layout, fragment)
+                .replace(R.id.messages_frame_layout, fragment, DetailedMessageFragment.TAG)
                 .addToBackStack(null)
                 .commit();
+        mFloatingActionButton.hide();
 //        FragmentManager supportFragmentManager  = getSupportFragmentManager();
 //        fragment = (DetailedMessageFragment)supportFragmentManager.findFragmentById(R.id.messages_frame_layout);
 //        if (fragment == null) {
@@ -238,6 +254,11 @@ public class MainActivity extends BaseActivity
     public void updateNavigationHeader(String name, String mailName) {
         mNameTextView.setText(name);
         mEmailTextView.setText(mailName);
+    }
+
+    @Override
+    public void startSendFormActivity(Intent intent) {
+        startActivity(intent);
     }
 
     @Override
@@ -391,8 +412,10 @@ public class MainActivity extends BaseActivity
 
     @OnClick(R.id.fab)
     public void OnFabClick(View view){
-        startActivity(SendingMessageActivity.getStartIntent(this));
+        mPresenter.onFABClick();
     }
+
+
 
     @Override
     public void onBackPressed() {
@@ -402,5 +425,10 @@ public class MainActivity extends BaseActivity
         } else {
             super.onBackPressed();
         }
+    }
+
+    @Override
+    public void onClickResendButtons(Messages.FullMessage fullMessage) {
+        mPresenter.onClickResendButtons(fullMessage);
     }
 }

@@ -1,5 +1,6 @@
 package com.company.ice.mygmail.ui.sendingMessage;
 
+import android.os.Bundle;
 import android.util.Log;
 
 import com.company.ice.mygmail.data.DataManager;
@@ -12,6 +13,10 @@ import java.util.ArrayList;
 import javax.inject.Inject;
 
 import io.reactivex.disposables.CompositeDisposable;
+
+import static com.company.ice.mygmail.ui.sendingMessage.SendingMessageActivity.SUBJECT;
+import static com.company.ice.mygmail.ui.sendingMessage.SendingMessageActivity.TEXT;
+import static com.company.ice.mygmail.ui.sendingMessage.SendingMessageActivity.TO;
 
 
 /**
@@ -35,6 +40,25 @@ public class SendingMessagePresenter<V extends SendingMessageMvpView> extends Ba
     @Override
     public void onDetach() {
 
+    }
+
+    @Override
+    public void onViewPrepared(Bundle bundle) {
+        if (bundle == null) return;
+
+        String from = getDataManager().getCredential().getSelectedAccountName();
+        String to =(String) bundle.get(TO);
+        String subject =(String) bundle.get(SUBJECT);
+        String text = "\n\n" + bundle.get(TEXT);
+        getMvpView().fillView(from, to, subject, text);
+//        Log.d(TAG, bundle.get(TO));
+        if (((String)bundle.get(TO)).equals("")) {
+            getMvpView().setCursorPositionFieldTo(0);
+            getMvpView().showKeyboard();
+        } else {
+            getMvpView().setCursorPositionFieldText(0);
+            getMvpView().showKeyboard();
+        }
     }
 
     @Override

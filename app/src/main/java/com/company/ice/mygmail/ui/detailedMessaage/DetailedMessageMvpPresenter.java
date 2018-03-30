@@ -1,6 +1,7 @@
 package com.company.ice.mygmail.ui.detailedMessaage;
 
 
+import com.company.ice.mygmail.data.network.model.Messages;
 import com.company.ice.mygmail.ui.base.MvpPresenter;
 
 /**
@@ -9,4 +10,6 @@ import com.company.ice.mygmail.ui.base.MvpPresenter;
 
 public interface DetailedMessageMvpPresenter<V extends DetailedMessageMvpView> extends MvpPresenter<V> {
     void onViewPrepared(String id);
+    void onReplyClick();
+    void onForwardClick();
 }

@@ -48,12 +48,13 @@ public abstract class BaseFragment extends Fragment implements MvpView {
         if (context instanceof BaseActivity) {
             BaseActivity activity = (BaseActivity) context;
             this.mActivity = activity;
-            activity.onFragmentAttached();
+            activity.onFragmentAttached(this.getTag());
         }
     }
 
     @Override
     public void onDetach() {
+        mActivity.onFragmentDetached(this.getTag());
         mActivity = null;
         super.onDetach();
     }
@@ -113,6 +114,12 @@ public abstract class BaseFragment extends Fragment implements MvpView {
             mActivity.hideKeyboard();
         }
     }
+    @Override
+    public void showKeyboard() {
+        if (mActivity != null) {
+            mActivity.showKeyboard();
+        }
+    }
 
     public BaseActivity getBaseActivity() {
         return mActivity;
@@ -133,7 +140,7 @@ public abstract class BaseFragment extends Fragment implements MvpView {
     }
 
     public interface Callback {
-        void onFragmentAttached();
+        void onFragmentAttached(String tag);
 
         void onFragmentDetached(String tag);
     }

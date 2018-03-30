@@ -25,7 +25,9 @@
             </intent-filter>
         </activity>
         <activity android:name=".ui.login.LoginActivity" />
-        <activity android:name=".ui.sendingMessage.SendingMessageActivity"></activity>
+        <activity
+            android:name=".ui.sendingMessage.SendingMessageActivity"
+            android:windowSoftInputMode="stateVisible"></activity>
     </application>
 
 </manifest>

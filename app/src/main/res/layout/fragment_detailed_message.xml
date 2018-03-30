@@ -1,4 +1,5 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -12,15 +13,171 @@
         android:scrollbars="horizontal"
         android:fillViewport="true">
 
-        <TextView
-            android:id="@+id/message_content_text"
+        <android.support.constraint.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent">
 
-        <!--<WebView-->
+            <TextView
+                android:id="@+id/detailed_textView_subject"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:maxLines="2"
+                android:text="TextView"
+                android:textAppearance="@android:style/TextAppearance.Holo.Large"
+                app:layout_constraintBottom_toTopOf="@+id/guidelineHeader"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="Subject" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:background="@color/colorDivider"
+                app:layout_constraintBottom_toTopOf="@+id/guidelineHeader" />
+
+
+            <android.support.constraint.ConstraintLayout
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="0dp"
+                app:layout_constraintBottom_toTopOf="@+id/guidelineText"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/guidelineHeader">
+
+                <ImageView
+                    android:id="@+id/detailed_imageView_avatar"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:layout_marginBottom="8dp"
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="8dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <android.support.constraint.Guideline
+                    android:id="@+id/guidelineImage"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_begin="77dp" />
+
+                <TextView
+                    android:id="@+id/detailed_textView_mailFrom"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginTop="8dp"
+                    android:maxLines="1"
+                    android:text="example@gmail.com"
+                    android:textAppearance="@style/TextAppearance.AppCompat"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintLeft_toRightOf="@id/guidelineImage"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/textView2"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginStart="8dp"
+                    android:text="to me"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintLeft_toRightOf="@id/guidelineImage"
+                    app:layout_constraintTop_toBottomOf="@id/detailed_textView_mailFrom" />
+
+                <TextView
+                    android:id="@+id/detailed_textView_date"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginStart="8dp"
+                    android:text="20/07/2017"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintLeft_toRightOf="@id/guidelineImage"
+                    app:layout_constraintTop_toBottomOf="@+id/textView2" />
+
+            </android.support.constraint.ConstraintLayout>
+
+            <android.support.constraint.Guideline
+                android:id="@+id/guidelineHeader"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_begin="85dp" />
+
+            <TextView
+                android:id="@+id/detailed_textView_content_text"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/guidelineText"
+                tools:text="some example text" />
+
+            <android.support.constraint.Guideline
+                android:id="@+id/guidelineText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_begin="169dp" />
+            <View
+                android:id="@+id/viewDivide2"
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:layout_marginTop="8dp"
+                android:background="@color/colorDivider"
+                app:layout_constraintTop_toBottomOf="@+id/detailed_textView_content_text" />
+
+            <Button
+                android:id="@+id/detailed_forward_button"
+                android:layout_width="80dp"
+                android:layout_height="70dp"
+                android:layout_marginEnd="8dp"
+                android:background="@color/transparency"
+                android:drawableTop="@drawable/ic_menu_send"
+                android:maxLines="1"
+                android:paddingTop="8dp"
+                android:text="Forward"
+                android:textAppearance="@style/TextAppearance.AppCompat"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/viewDivide2" />
+
+
+            <Button
+                android:id="@+id/detailed_reply_button"
+                android:layout_width="80dp"
+                android:layout_height="70dp"
+                android:layout_marginStart="8dp"
+                android:background="@color/transparency"
+                android:drawableTop="?attr/homeAsUpIndicator"
+                android:maxLines="1"
+                android:paddingTop="8dp"
+                android:text="Reply"
+                android:textAppearance="@style/TextAppearance.AppCompat"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/viewDivide2" />
+
+            <!--<WebView-->
             <!--android:id="@+id/message_content"-->
             <!--android:layout_width="match_parent"-->
             <!--android:layout_height="match_parent" />-->
+        </android.support.constraint.ConstraintLayout>
+
 
 
     </ScrollView>

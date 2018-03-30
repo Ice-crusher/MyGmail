@@ -19,4 +19,6 @@ public interface MainMvpView extends MvpView {
     void insertMessageListFragment(String query);
     void insertDetailedMessageFragment(String id);
     void updateNavigationHeader(String name, String mailName);
+
+    void startSendFormActivity(Intent intent);
 }

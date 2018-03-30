@@ -1,5 +1,7 @@
 package com.company.ice.mygmail.ui.sendingMessage;
 
+import android.os.Bundle;
+
 import com.company.ice.mygmail.ui.base.MvpPresenter;
 
 /**
@@ -9,4 +11,5 @@ import com.company.ice.mygmail.ui.base.MvpPresenter;
 public interface SendingMessageMvpPresenter<V extends SendingMessageMvpView> extends MvpPresenter<V> {
 
     void onSendMessage(String to, String from, String subject, String bodyText);
+    void onViewPrepared(Bundle bundle);
 }
