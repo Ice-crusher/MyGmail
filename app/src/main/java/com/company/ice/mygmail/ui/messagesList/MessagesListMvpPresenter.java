@@ -13,4 +13,6 @@ public interface MessagesListMvpPresenter<V extends MessagesListMvpView> extends
     void onRefresh();
     void onClickListElement(int position);
     void onNewFragmentAttached();
+
+    void onFragmentDestroyed();
 }

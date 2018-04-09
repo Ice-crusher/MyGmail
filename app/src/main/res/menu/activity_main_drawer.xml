@@ -38,14 +38,14 @@
     <group
         android:id="@+id/nav_other"
         android:checkableBehavior="none">
-            <item
-                android:id="@+id/nav_settings"
-                android:icon="@drawable/ic_menu_send"
-                android:title="Settings" />
-            <item
-                android:id="@+id/nav_about"
-                android:icon="@drawable/ic_menu_send"
-                android:title="About" />
+        <item
+            android:id="@+id/nav_settings"
+            android:icon="@drawable/ic_menu_manage"
+            android:title="Settings" />
+        <item
+            android:id="@+id/nav_about"
+            android:icon="@drawable/ic_info_black"
+            android:title="About" />
     </group>
 
 </menu>

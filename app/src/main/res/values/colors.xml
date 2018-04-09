@@ -1,8 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF4081</color>
+    <!--<color name="colorPrimary">#3F51B5</color>-->
+    <!--<color name="colorPrimaryDark">#303F9F</color>-->
+    <!--<color name="colorAccent">#FF4081</color>-->
+
+    <color name="colorPrimary">#bf360c</color>
+    <color name="colorAccent">#f9683a</color>
+    <color name="colorPrimaryDark">#870000</color>
+    <color name="primaryTextColor">#ffffff</color>
+
     <color name="transparency">#00ffffff</color>
 
     <color name="activityBackground">#ebebeb</color>
@@ -11,5 +17,9 @@
 
     <color name="colorDivider">#b3b3b3</color>
     <color name="colorDetailedButtonText">#292929</color>
+
+    <color name="colorNavAvatar">#fdd835</color>
+
+    <color name="colorCardViewAttachmentsItem">#f4f4f4</color>
 
 </resources>

@@ -27,14 +27,14 @@ public class MessagesListPresenter<V extends MessagesListMvpView> extends BasePr
 
     private final static String TAG = "MessagesListPresenter";
 
-    private List<Messages.ShortMessage> mMessageList;
+//    private List<Messages.ShortMessage> mMessageList;
 
     String query;
 
     @Inject
     public MessagesListPresenter(DataManager dataManager, SchedulerProvider schedulerProvider, CompositeDisposable compositeDisposable) {
         super(dataManager, schedulerProvider, compositeDisposable);
-        mMessageList = new ArrayList<Messages.ShortMessage>();
+//        mMessageList = new ArrayList<Messages.ShortMessage>();
     }
 
     @Override
@@ -45,9 +45,10 @@ public class MessagesListPresenter<V extends MessagesListMvpView> extends BasePr
     @Override
     public void onViewPrepared(String query) {
         this.query = query;
-        if (mMessageList != null & mMessageList.size() > 0) {
+//        if (mMessageList != null & mMessageList.size() > 0) {
+        if (!getDataManager().getShortMessages().isEmpty()) {
             Log.d(TAG, "Get data from PRESENTER (NOT FROM DATA_MANAGER)");
-            getMvpView().updateMessages(mMessageList);
+            getMvpView().updateMessages(getDataManager().getShortMessages());
             return;
         }
         loadMore(true);
@@ -55,7 +56,8 @@ public class MessagesListPresenter<V extends MessagesListMvpView> extends BasePr
 
     @Override
     public void onRefresh() {
-        mMessageList.clear();
+        getDataManager().clearShortMessages();
+//        mMessageList.clear();
         getMvpView().refreshItems();
         loadMore(true);
     }
@@ -64,7 +66,8 @@ public class MessagesListPresenter<V extends MessagesListMvpView> extends BasePr
     public void onClickListElement(int position) {
         //TODO change the way for do this
 //        getMvpView().showMessage(String.valueOf(position));
-        getMvpView().callMainActivityClick(mMessageList.get(position).getId());
+        if (!getDataManager().getShortMessages().isEmpty())
+            getMvpView().callMainActivityClick(getDataManager().getShortMessages().get(position).getId());
     }
 
     private void loadMore(boolean withResetToken){
@@ -79,7 +82,8 @@ public class MessagesListPresenter<V extends MessagesListMvpView> extends BasePr
                     if (list == null || list.size() == 0) {
                         getMvpView().showMessage("No results returned.");
                     } else {
-                        mMessageList.addAll(list);
+                        getDataManager().setShortMessagesList(list);
+//                        mMessageList.addAll(list);
                         getMvpView().updateMessages(list);
                     }
 
@@ -117,6 +121,14 @@ public class MessagesListPresenter<V extends MessagesListMvpView> extends BasePr
     @Override
     public void onNewFragmentAttached() {
         Log.d(TAG, "New fragment ATTACHED");
-        mMessageList.clear();
+        getDataManager().clearShortMessages();
+//        mMessageList.clear();
+    }
+
+    @Override
+    public void onFragmentDestroyed() {
+        Log.d(TAG, "New fragment DESTROYED");
+        getDataManager().clearShortMessages();
+//        mMessageList.clear();
     }
 }

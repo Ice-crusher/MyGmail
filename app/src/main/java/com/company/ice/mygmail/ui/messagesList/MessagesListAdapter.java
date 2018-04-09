@@ -14,6 +14,7 @@ import com.amulyakhare.textdrawable.util.ColorGenerator;
 import com.company.ice.mygmail.R;
 import com.company.ice.mygmail.data.network.model.Messages;
 import com.company.ice.mygmail.ui.base.BaseViewHolder;
+import com.company.ice.mygmail.utils.CommonUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -158,12 +159,7 @@ public class MessagesListAdapter extends RecyclerView.Adapter<BaseViewHolder>{
                 contentTextView.setText(shortMessage.getSubject());
             }
 
-            char letter = shortMessage.getAuthor().charAt(0);
-            ColorGenerator generator = ColorGenerator.MATERIAL;
-            int color = generator.getColor(shortMessage.getAuthor());
-            TextDrawable drawable = TextDrawable.builder()
-                    .buildRound(String.valueOf(letter), color);
-            avatar.setImageDrawable(drawable);
+            avatar.setImageDrawable(CommonUtils.createDrawable(shortMessage.getAuthor()));
 
 //            itemView.setOnClickListener(new View.OnClickListener() {
 //                @Override

@@ -1,5 +1,6 @@
 package com.company.ice.mygmail.ui.messagesList;
 
+import android.app.Application;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -8,6 +9,7 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -96,6 +98,7 @@ public class MessagesListFragment extends BaseFragment implements MessagesListMv
         if (getArguments() != null) {
             query = getArguments().getString(ARG_PARAM1);
         }
+
     }
 
     @Override
@@ -118,6 +121,7 @@ public class MessagesListFragment extends BaseFragment implements MessagesListMv
             mPresenter.onAttach(this);
             mListAdapter.setCallback(this);
         }
+        setActionBarTitle(query);
         if (isNewFragment) {
             mPresenter.onNewFragmentAttached();
             isNewFragment = false;
@@ -185,6 +189,26 @@ public class MessagesListFragment extends BaseFragment implements MessagesListMv
             }
         });
 
+        this.getView().setFocusableInTouchMode(true);
+        this.getView().requestFocus();
+        this.getView().setOnKeyListener( new View.OnKeyListener()
+        {
+            @Override
+            public boolean onKey( View v, int keyCode, KeyEvent event )
+            {
+                if( keyCode == KeyEvent.KEYCODE_BACK )
+                {
+
+                    if (getFragmentManager().getBackStackEntryCount() > 0) {
+                        mPresenter.onFragmentDestroyed();
+                        getFragmentManager().popBackStack();
+                        return true;
+                    }
+                }
+                return false;
+            }
+        } );
+
         mSwipeRefreshLayout.setRefreshing(true);
         mPresenter.onViewPrepared(query);
     }
@@ -192,6 +216,7 @@ public class MessagesListFragment extends BaseFragment implements MessagesListMv
     @Override
     public void onDestroy() {
         Log.d(TAG, "onDestroy");
+//        mPresenter.onFragmentDestroyed();
         super.onDestroy();
     }
 
@@ -199,22 +224,23 @@ public class MessagesListFragment extends BaseFragment implements MessagesListMv
     public void onAttach(Context context) {
         Log.d(TAG, "onAttach");
         super.onAttach(context);
-//        mPresenter.onNewFragmentAttached();
     }
 
     @Override
     public void onDetach() {
         Log.d(TAG, "onDetach");
+//        mPresenter.onDetach();
+//        mPresenter.onDetach();
+//        mPresenter.onFragmentDestroyed();
         super.onDetach();
     }
 
     @Override
     public void onDestroyView() {
+        Log.d(TAG, "onDestroyView");
         mPresenter.onDetach();
         super.onDestroyView();
     }
-
-
 
 
     @Override
@@ -225,7 +251,7 @@ public class MessagesListFragment extends BaseFragment implements MessagesListMv
             hideLoading();
             return;
         }
-        Log.d(TAG, "List is not empty. Amount: " + list.size());
+//        Log.d(TAG, "List is not empty. Amount: " + list.size());
         mListAdapter.addItems(list);
         isLoadingMore = false;
 

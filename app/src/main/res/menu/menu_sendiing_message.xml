@@ -4,8 +4,14 @@
 
     <item
         android:id="@+id/action_send_message"
-        android:orderInCategory="1"
+        android:orderInCategory="2"
         android:title="SEND"
+        app:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/action_attach_file"
+        android:orderInCategory="1"
+        android:title="Attach"
+        android:icon="@drawable/ic_attachment"
         app:showAsAction="ifRoom"/>
 
 </menu>

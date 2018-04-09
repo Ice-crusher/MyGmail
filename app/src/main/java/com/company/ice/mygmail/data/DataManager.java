@@ -25,7 +25,14 @@ public interface DataManager {
 
     Observable<List<Messages.ShortMessage>> getShortMessageDescription(boolean withResetToken, String query);
     Observable<Messages.FullMessage> getFullMessage(String id);
-    Observable<Message> sendMessage(String to, String from, String subject, String bodyText, File file);
+    Observable<Message> sendMessage(String to, String from, String subject, String bodyText, List<File> fileList);
+    Observable<Boolean> deleteMessage(String id);
+    Observable<byte[]> getAttachmentData(String idMessage, String idAttachment);
 
-
+    // FOR WORK WITH LOCAL LIST
+    List<Messages.ShortMessage> getShortMessages();
+    void setShortMessagesList(List<Messages.ShortMessage> list);
+    void deleteShortMessagesItem(String id);
+    void deleteShortMessagesItem(int position);
+    void clearShortMessages();
 }

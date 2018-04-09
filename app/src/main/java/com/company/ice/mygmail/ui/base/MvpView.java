@@ -20,6 +20,10 @@ public interface MvpView {
 
     void onError(@StringRes int resId);
 
+    void showSnackBar(String message);
+
+    void setActionBarTitle(String title);
+
     void onError(String message);
 
     void showMessage(String message);

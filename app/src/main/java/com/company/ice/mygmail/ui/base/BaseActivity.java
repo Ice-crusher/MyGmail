@@ -78,7 +78,8 @@ public abstract class BaseActivity extends AppCompatActivity implements MvpView,
         }
     }
 
-    private void showSnackBar(String message) {
+    @Override
+    public void showSnackBar(String message) {
         Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content),
                 message, Snackbar.LENGTH_SHORT);
         View sbView = snackbar.getView();
@@ -86,6 +87,11 @@ public abstract class BaseActivity extends AppCompatActivity implements MvpView,
                 .findViewById(android.support.design.R.id.snackbar_text);
         textView.setTextColor(ContextCompat.getColor(this, R.color.white));
         snackbar.show();
+    }
+
+    @Override
+    public void setActionBarTitle(String title){
+        getSupportActionBar().setTitle(title);
     }
 
 

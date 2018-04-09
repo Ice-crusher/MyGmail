@@ -12,4 +12,6 @@ public interface DetailedMessageMvpPresenter<V extends DetailedMessageMvpView> e
     void onViewPrepared(String id);
     void onReplyClick();
     void onForwardClick();
+    void onDeleteClick();
+    void onDownloadButtonClick(int position);
 }

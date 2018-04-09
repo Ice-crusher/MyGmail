@@ -45,12 +45,16 @@ public class AppDataManager implements DataManager {
 
     GoogleAccountCredential mCredential;
 
+    private List<Messages.ShortMessage> mMessageList;
+
 
     @Inject
     public AppDataManager(@ApplicationContext Context context, ApiHelper apiHelper, GoogleAccountCredential credential) {
         mContext = context;
         mApiHelper = apiHelper;
         mCredential = credential;
+
+        mMessageList = new ArrayList<Messages.ShortMessage>();
 //        mFirebaseAuth = FirebaseAuth.getInstance();
     }
 
@@ -87,16 +91,22 @@ public class AppDataManager implements DataManager {
         return mApiHelper.getFullMessage(mCredential, id);
     }
 
+
+    @Override
+    public Observable<byte[]> getAttachmentData(String idMessage, String idAttachment) {
+        return mApiHelper.getAttachmentData(mCredential, idMessage, idAttachment);
+    }
+
     @Override
     public Observable<Message> sendMessage(String to,
                                            String from,
                                            String subject,
                                            String bodyText,
-                                           File file) {
+                                           List<File> fileList) {
         MimeMessage message = null;
         try {
-            if (file != null)
-                message = createEmailWithAttachment(to, from, subject , bodyText, file);
+            if (fileList != null && fileList.size() > 0)
+                message = createEmailWithAttachment(to, from, subject , bodyText, fileList);
             else
                 message = createEmail(to, from, subject , bodyText);
         } catch (Exception e) {
@@ -114,7 +124,7 @@ public class AppDataManager implements DataManager {
      * @param from Email address of the sender, the mailbox account.
      * @param subject Subject of the email.
      * @param bodyText Body text of the email.
-     * @param file Path to the file to be attached.
+     * @param fileList Path to the file to be attached.
      * @return MimeMessage to be used to send email.
      * @throws MessagingException
      */
@@ -122,7 +132,7 @@ public class AppDataManager implements DataManager {
                                                         String from,
                                                         String subject,
                                                         String bodyText,
-                                                        File file)
+                                                        List<File> fileList)
             throws MessagingException, IOException {
 
         Properties props = new Properties();
@@ -141,16 +151,17 @@ public class AppDataManager implements DataManager {
         Multipart multipart = new MimeMultipart();
         multipart.addBodyPart(mimeBodyPart);
 
-        mimeBodyPart = new MimeBodyPart();
-        if (file != null) {
+        if (fileList != null)
+            for(File item : fileList){
+                mimeBodyPart = new MimeBodyPart();
+                DataSource source = new FileDataSource(item);
 
-            DataSource source = new FileDataSource(file);
+                mimeBodyPart.setDataHandler(new DataHandler(source));
+                mimeBodyPart.setFileName(item.getName());
 
-            mimeBodyPart.setDataHandler(new DataHandler(source));
-            mimeBodyPart.setFileName(file.getName());
-        }
+                multipart.addBodyPart(mimeBodyPart);
+            }
 
-        multipart.addBodyPart(mimeBodyPart);
         email.setContent(multipart);
 
         return email;
@@ -172,6 +183,37 @@ public class AppDataManager implements DataManager {
         email.setSubject(subject);
         email.setText(bodyText);
         return email;
+    }
+
+
+    @Override
+    public Observable<Boolean> deleteMessage(String id) {
+        return mApiHelper.deleteMessage(mCredential, id);
+    }
+    @Override
+    public List<Messages.ShortMessage> getShortMessages(){
+        return mMessageList;
+    }
+    @Override
+    public void setShortMessagesList(List<Messages.ShortMessage> list){
+        mMessageList.addAll(list);
+    }
+    @Override
+    public void deleteShortMessagesItem(String id){
+        for (int i = 0; i < mMessageList.size(); ++i){
+            if (mMessageList.get(i).getId().equals(id)){
+                mMessageList.remove(i);
+            }
+        }
+    }
+    @Override
+    public void deleteShortMessagesItem(int position){
+        mMessageList.remove(position);
+    }
+
+    @Override
+    public void clearShortMessages(){
+        mMessageList.clear();
     }
 
 }

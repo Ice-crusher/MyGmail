@@ -73,6 +73,16 @@ public abstract class BaseFragment extends Fragment implements MvpView {
     }
 
     @Override
+    public void showSnackBar(String message) {
+        mActivity.showSnackBar(message);
+    }
+
+    @Override
+    public void setActionBarTitle(String title) {
+        mActivity.setActionBarTitle(title);
+    }
+
+    @Override
     public void onError(String message) {
         if (mActivity != null) {
             mActivity.onError(message);

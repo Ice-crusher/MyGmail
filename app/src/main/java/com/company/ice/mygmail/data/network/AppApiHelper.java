@@ -3,6 +3,8 @@ package com.company.ice.mygmail.data.network;
 import android.util.Log;
 
 import com.company.ice.mygmail.data.network.model.Messages;
+import com.company.ice.mygmail.utils.AppConstants;
+import com.company.ice.mygmail.utils.CommonUtils;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.http.HttpTransport;
@@ -14,6 +16,7 @@ import com.google.api.services.gmail.Gmail;
 import com.google.api.services.gmail.model.ListMessagesResponse;
 import com.google.api.services.gmail.model.Message;
 import com.google.api.services.gmail.model.MessagePart;
+import com.google.api.services.gmail.model.MessagePartBody;
 import com.google.api.services.gmail.model.MessagePartHeader;
 
 import java.io.ByteArrayOutputStream;
@@ -23,6 +26,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import com.company.ice.mygmail.utils.AppConstants.MIME_TYPE;
 
 import javax.inject.Inject;
 import javax.mail.MessagingException;
@@ -69,12 +74,7 @@ public class AppApiHelper implements ApiHelper {
     public Observable<List<Messages.ShortMessage>> getShortMessageDescription(GoogleAccountCredential credential, String query) {
         Observable<List<Messages.ShortMessage>> observable = Observable.create(subscriber -> {
 
-            HttpTransport transport = AndroidHttp.newCompatibleTransport();
-            JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
-            Gmail mService = new Gmail.Builder(
-                    transport, jsonFactory, credential)
-                    .setApplicationName("Gmail API Android Quickstart")
-                    .build();
+            Gmail mService = createGmailService(credential);
             try {
                 subscriber.onNext(getDataShortMessage(mService, query));
             } catch (Exception e) {
@@ -95,10 +95,14 @@ public class AppApiHelper implements ApiHelper {
 
         ListMessagesResponse messageResponse;
 //        if (currentPageToken != null) {
+        List<String> temp = new ArrayList<>();
+        temp.add("INBOX");
+
             messageResponse =
                     service.users().messages().list(user)
                             .setPageToken(currentPageToken)
                             .setMaxResults(Long.valueOf(10))
+//                            .setLabelIds(temp)
                             .setQ(query)
                             .execute();
 //        } else {
@@ -106,14 +110,14 @@ public class AppApiHelper implements ApiHelper {
 //                    service.users().messages().list(user).setMaxResults(Long.valueOf(15)).execute();
 //        }
 
-        Log.d(TAG, "Before: " + String.valueOf(currentPageToken));
+//        Log.d(TAG, "Before: " + String.valueOf(currentPageToken));
         currentPageToken = messageResponse.getNextPageToken();
-        Log.d(TAG, "After: " + String.valueOf(currentPageToken));
+//        Log.d(TAG, "After: " + String.valueOf(currentPageToken));
 
         List<Message> messages = messageResponse.getMessages();
         List<Messages.ShortMessage> list = new ArrayList<>();
         for (Message message : messages) {
-            Messages.ShortMessage shortMessage = new Messages.ShortMessage("Name", "Description", "01/01/2000", "00000000");
+            Messages.ShortMessage shortMessage = new Messages.ShortMessage();
 
             Message message2 = service.users().messages().get(user, message.getId())
                     .setFormat("metadata")
@@ -125,16 +129,25 @@ public class AppApiHelper implements ApiHelper {
             else Log.d(TAG, payload.toPrettyString());
 
             String auth = "Unnamed";
+            String authMail = "some@mail.com";
             for (int i = 0; i < payload.getHeaders().size(); i++) {
-                if (payload.getHeaders().get(i).getName().equals("From"))
-                    auth = payload.getHeaders().get(i).getValue();
+                MessagePartHeader curHeader = payload.getHeaders().get(i);
+                if (curHeader.getName().equals("From")) {
+                    authMail = CommonUtils.normalizeSenderMailAddress(curHeader.getValue());
+                    auth = CommonUtils.normalizeSenderName(curHeader.getValue());
+                }
+
             }
+
+            if (CommonUtils.isEmailValid(auth))
+                authMail = auth;
 
             DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
             String s =  formatter.format(date);
             shortMessage.setDate(s);
             shortMessage.setSubject(message2.getSnippet());
             shortMessage.setAuthor(auth);
+            shortMessage.setAuthorEmail(authMail);
             shortMessage.setId(message.getId());
 
 //            Log.d(TAG, s);
@@ -147,16 +160,11 @@ public class AppApiHelper implements ApiHelper {
     @Override
     public Observable<Messages.FullMessage> getFullMessage(GoogleAccountCredential credential, String id) {
         Observable<Messages.FullMessage> observable = Observable.create(subscriber -> {
-            HttpTransport transport = AndroidHttp.newCompatibleTransport();
-            JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
-            Gmail mService = new Gmail.Builder(
-                    transport, jsonFactory, credential)
-                    .setApplicationName("Gmail API Android Quickstart")
-                    .build();
+            Gmail mService = createGmailService(credential);
             try {
                 subscriber.onNext(getDataFullMessage(mService, id));
             } catch (Exception e) {
-                Log.d(TAG, e.toString());
+                Log.e(TAG, e.toString());
                 subscriber.onError(e);
             }
         });
@@ -178,39 +186,119 @@ public class AppApiHelper implements ApiHelper {
         Date d = new Date(message2.getInternalDate());
         DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
         String date =  formatter.format(d);
-
+        Log.d(TAG, message2.toPrettyString());
         MessagePart payload = message2.getPayload();
-        if (payload == null) Log.d(TAG, "PART IS NULL");
-        else Log.d(TAG, payload.toPrettyString());
+//        if (payload == null) Log.d(TAG, "PART IS NULL");
+//        else Log.d(TAG, payload.toPrettyString());
 
         String auth = "Unnamed";
+        String authMail = "Unnamed";
         String subject = "Subject";
         for (int i = 0; i < payload.getHeaders().size(); i++) {
             MessagePartHeader curHeader = payload.getHeaders().get(i);
-            if (curHeader.getName().equals("From"))
-                auth = curHeader.getValue();
+            if (curHeader.getName().equals("From")) {
+                authMail = CommonUtils.normalizeSenderMailAddress(curHeader.getValue());
+                auth = CommonUtils.normalizeSenderName(curHeader.getValue());
+            }
             if (curHeader.getName().equals("Subject"))
                 subject = curHeader.getValue();
         }
 
-        String text = StringUtils.newStringUtf8(Base64.decodeBase64(payload.getBody().getData()));
-//        String text = payload.getBody().getData();
-        if (text != null) {
-            Log.d(TAG, text);
-        }
-        else {
-            Log.d(TAG, "TEXT IS NULL, GET ALTERNATIVE");
-            text = StringUtils.newStringUtf8(Base64.decodeBase64(payload.getParts().get(0).getBody().getData()));
-            Log.d(TAG, text);
-        }
-        fullMessage.setText(text);
+        String text = parseText(payload);
+        List<Messages.Attachment> list = new ArrayList<>();
+        parseAttachments(payload, list);
+        Log.d(TAG, "List attachments id size: " + list.size());
+
+        fullMessage.setAttachments(list);
         fullMessage.setDate(date);
         fullMessage.setSubject(subject);
 
         fullMessage.setAuthor(auth);
+        fullMessage.setAuthorEmail(authMail);
+        fullMessage.setText(text);
         fullMessage.setId(id);
 
         return fullMessage;
+    }
+
+    /**
+     **Plain Email
+     *   -text/plain
+     *
+     **HTML Email
+     *   -multipart/alternative
+     *       -text/plain
+     *       -text/html
+     *
+     **HTML Email with embedded image
+     *   -multipart/related
+     *       -multipart/alternative
+     *           -text/plain
+     *           -text/html
+     *       -image/png (embedded image)
+     *
+     **HTML Email with embedded image and attachment
+     *   -multipart/mixed
+     *       -multipart/related
+     *           -multipart/alternative
+     *               -text/plain
+     *               -text/html
+     *           -image/png (embedded image)
+     *       -image/png (attached image)
+     *
+     **HTML Email with attachment
+     *   -multipart/mixed
+     *       -multipart/alternative
+     *           -text/plain
+     *           -text/html
+     *       -image/png (attached image)
+    */
+
+    private String parseText(MessagePart payload) {
+        // TODO must be fixed for message with text/html only
+        String text = "NULL";
+        if (payload.getMimeType().equals(MIME_TYPE.TEXT_PLAIN)) {
+            text = StringUtils.newStringUtf8(Base64.decodeBase64(payload.getBody().getData()));
+            return text;
+        } else if (payload.getParts() != null) // if has child
+            for (int i = 0; i < payload.getParts().size(); i++) {
+                text = parseText(payload.getParts().get(i));
+                if (!text.equals("NULL"))
+                    break;
+            }
+//        if (payload.getMimeType().equals(MIME_TYPE.TEXT_PLAIN)) // Plain Email
+//
+//        if (payload.getMimeType().equals(MIME_TYPE.MULTIPAR_ALTERNATIVE)) // HTML Email
+//            text = StringUtils.newStringUtf8(Base64.decodeBase64(payload.getParts().get(0).getBody().getData()));
+//
+//        else if (payload.getMimeType().equals(MIME_TYPE.MULTIPAR_RELATED)) { // HTML Email with embedded image
+//            text = StringUtils.newStringUtf8(Base64.decodeBase64(payload.getParts().get(0)
+//                    .getParts().get(0).getBody().getData()));
+//        }
+//
+//        else if (payload.getMimeType().equals(MIME_TYPE.MULTIPAR_MIXED)) {
+//            if (payload.getParts().get(0).getMimeType().equals(MIME_TYPE.MULTIPAR_RELATED)) { // HTML Email with embedded image and attachment
+//                text = StringUtils.newStringUtf8(Base64.decodeBase64(payload.getParts().get(0)
+//                        .getParts().get(0)
+//                        .getParts().get(0).getBody().getData()));
+//            } else if (payload.getParts().get(0).getMimeType().equals(MIME_TYPE.MULTIPAR_ALTERNATIVE)) { //HTML Email with attachment
+//                text = StringUtils.newStringUtf8(Base64.decodeBase64(payload.getParts().get(0)
+//                        .getParts().get(0).getBody().getData()));
+//            }
+//        }
+        return text;
+    }
+
+    private void parseAttachments(MessagePart payload, List<Messages.Attachment> list){
+
+        if (payload.getMimeType().contains("application") || payload.getMimeType().contains("image")){
+            list.add(new Messages.Attachment(payload.getFilename(), payload.getBody().getAttachmentId(),
+                    payload.size(), payload.getMimeType(), null));
+        }
+        if (payload.getParts() != null) // if has child
+            for (int i = 0; i < payload.getParts().size(); i++) {
+                parseAttachments(payload.getParts().get(i), list);
+            }
     }
 
     @Override
@@ -248,4 +336,46 @@ public class AppApiHelper implements ApiHelper {
         message.setRaw(encodedEmail);
         return message;
     }
+
+    @Override
+    public Observable<Boolean> deleteMessage(GoogleAccountCredential credential, String id){
+        Observable<Boolean> observable = Observable.create(subscriber -> {
+            Gmail service = createGmailService(credential);
+            String user = "me";
+
+            try {
+             service.users().threads().delete(user, id).execute();
+             subscriber.onNext(true);
+            } catch (Exception e) {
+                Log.e(TAG, e.toString());
+                subscriber.onError(e);
+            }
+        });
+        return observable;
+    }
+
+    @Override
+    public Observable<byte[]> getAttachmentData(GoogleAccountCredential credential, String idMessage, String idAttachment) {
+        Observable<byte[]> observable = Observable.create(subscriber -> {
+            Gmail service = createGmailService(credential);
+            String user = "me";
+
+            try {
+                MessagePartBody attachPart = service.users().messages().attachments().
+                        get(user, idMessage, idAttachment).execute();
+
+                Base64 base64Url = new Base64(true);
+                byte[] fileByteArray = base64Url.decodeBase64(attachPart.getData());
+
+                subscriber.onNext(fileByteArray);
+            } catch (Exception e) {
+                Log.e(TAG, e.toString());
+                subscriber.onError(e);
+            }
+        });
+
+        return observable;
+    }
 }
+
+

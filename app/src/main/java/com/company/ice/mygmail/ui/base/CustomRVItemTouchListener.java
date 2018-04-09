@@ -2,6 +2,7 @@ package com.company.ice.mygmail.ui.base;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -39,6 +40,7 @@ public class CustomRVItemTouchListener implements RecyclerView.OnItemTouchListen
     @Override
     public boolean onInterceptTouchEvent(RecyclerView recyclerView, MotionEvent e) {
         View child = recyclerView.findChildViewUnder(e.getX(), e.getY());
+        //TODO Click event on the empty recycler view list. MOST BE FIXED
         if (child != null && clickListener != null && gestureDetector.onTouchEvent(e)) {
             clickListener.onClick(child, recyclerView.getChildLayoutPosition(child));
         }

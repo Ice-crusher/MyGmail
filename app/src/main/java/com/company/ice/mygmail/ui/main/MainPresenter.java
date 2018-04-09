@@ -108,7 +108,7 @@ public class MainPresenter<V extends MainMvpView> extends BasePresenter<V>
     @Override
     public void onClickResendButtons(Messages.FullMessage fullMessage){
         getMvpView().startSendFormActivity(SendingMessageActivity.getStartIntent(mActivity,
-                fullMessage.getAuthor(),
+                fullMessage.getAuthorEmail(),
                 fullMessage.getSubject(),
                 fullMessage.getText()) );
     }
@@ -116,14 +116,18 @@ public class MainPresenter<V extends MainMvpView> extends BasePresenter<V>
     @Override
     public void onAttach(V mvpView) {
         super.onAttach(mvpView);
-        if (!CommonUtils.isGooglePlayServicesAvailable(appContext))
+        if (!CommonUtils.isGooglePlayServicesAvailable(appContext)) {
             getMvpView().startLoginActivity();
+            return;
+        }
+
 
         Log.d(TAG, "SELECTED ACCOUNT: " + mCredential.getSelectedAccountName());
         if (mCredential.getSelectedAccountName() == null) {
 //            chooseAccount();
             getDataManager().setUserAsLoggedOut();
             getMvpView().startLoginActivity();
+            return;
         }
         if (mCredential != null){
             getDataManager().setCredential(mCredential);
