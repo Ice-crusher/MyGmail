@@ -40,14 +40,15 @@ public final class AppConstants {
     public static final String SHARED_PREFERENCE_TAG = "MyGmail";
     public static final String PREF_ACCOUNT_NAME = "accountName";
 
-    public final static class MESSAGE_QUERY{
-        public static final String PRIMARY = "in:inbox";
-        public static final String STARRED = "in:starred";
-        public static final  String IMPORTANT = "in:important";
-        public static final  String SENT = "in:sent";
-        public static final  String DRAFTS = "in:drafts";
-        public static final  String SPAM = "in:spam";
-        public static final  String TRASH = "in:trash";
+    public final static class MESSAGE_LABELS {
+        public static final String INBOX = "INBOX";
+        public static final String STARRED = "STARRED";
+        public static final  String IMPORTANT = "IMPORTANT";
+        public static final  String SENT = "SENT";
+        public static final  String DRAFTS = "DRAFTS";
+        public static final  String SPAM = "SPAM";
+        public static final  String TRASH = "TRASH";
+        public static final  String UNREAD = "UNREAD";
     }
 
 

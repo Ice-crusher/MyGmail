@@ -74,7 +74,7 @@ public class MessagesListAdapter extends RecyclerView.Adapter<BaseViewHolder>{
 
     @Override
     public int getItemViewType(int position) {
-        if(position == mMessageList.size() & position != 0)
+        if (position == mMessageList.size() & position != 0)
             return VIEW_TYPE_FOOTER;
         if (mMessageList != null && mMessageList.size() > 0) {
             return VIEW_TYPE_NORMAL;
@@ -127,6 +127,9 @@ public class MessagesListAdapter extends RecyclerView.Adapter<BaseViewHolder>{
         @BindView(R.id.avatar_imageView)
         ImageView avatar;
 
+        @BindView(R.id.new_message_tag)
+        ImageView newMessageTag;
+
         public ViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
@@ -160,6 +163,11 @@ public class MessagesListAdapter extends RecyclerView.Adapter<BaseViewHolder>{
             }
 
             avatar.setImageDrawable(CommonUtils.createDrawable(shortMessage.getAuthor()));
+
+            if (mMessageList.get(position).isNew())
+                newMessageTag.setVisibility(View.VISIBLE);
+            else
+                newMessageTag.setVisibility(View.INVISIBLE);
 
 //            itemView.setOnClickListener(new View.OnClickListener() {
 //                @Override

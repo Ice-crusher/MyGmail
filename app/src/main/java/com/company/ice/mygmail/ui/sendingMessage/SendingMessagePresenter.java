@@ -175,6 +175,10 @@ public class SendingMessagePresenter<V extends SendingMessageMvpView> extends Ba
 
     @Override
     public void onSendMessage(String from, String to, String subject, String bodyText) {
+        if(!CommonUtils.isEmailValid(to)){
+            getMvpView().showMessage("Invalid forward email");
+            return;
+        }
         getMvpView().showLoading();
         getCompositeDisposable().add(getDataManager()
                 .sendMessage(to, from, subject, bodyText, mFilesList)

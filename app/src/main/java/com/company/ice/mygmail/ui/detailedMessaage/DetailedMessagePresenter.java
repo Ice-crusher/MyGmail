@@ -4,14 +4,12 @@ import android.Manifest;
 import android.app.DownloadManager;
 import android.content.Context;
 import android.os.Environment;
-import android.support.v4.app.Fragment;
 import android.util.Log;
 
 import com.company.ice.mygmail.data.DataManager;
 import com.company.ice.mygmail.data.network.model.Messages;
 import com.company.ice.mygmail.di.ActivityContext;
 import com.company.ice.mygmail.ui.base.BasePresenter;
-import com.company.ice.mygmail.ui.login.LoginPresenter;
 import com.company.ice.mygmail.utils.rx.SchedulerProvider;
 
 import java.io.File;
@@ -94,12 +92,29 @@ public class DetailedMessagePresenter<V extends DetailedMessageMvpView> extends 
 //                    getMvpView().hideLoading();
                     mFullMessage = message;
                     getMvpView().fillMessage(message);
+                    setAsRead();
 //                    Log.d(TAG, message.toString());
                 }, error -> {
                     getMvpView().hideLoading();
                     getMvpView().showMessage("ERROR DOWNLOAD MESSAGE");
 //                    Log.e(TAG, error.toString());
                 }));
+    }
+
+    private void setAsRead(){
+        if (mFullMessage.isNew()) {
+            mFullMessage.setNew(false);
+
+            getCompositeDisposable().add(getDataManager()
+                    .setMassageReadStatus(mFullMessage.getId(), true)
+                    .subscribeOn(getSchedulerProvider().io())
+                    .observeOn(getSchedulerProvider().ui())
+                    .subscribe(isSent -> {
+
+                    }, error -> {
+                        Log.e(TAG, error.toString());
+                    }));
+        }
     }
 
     private boolean hasPermissions(String[] perms){

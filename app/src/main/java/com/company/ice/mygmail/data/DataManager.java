@@ -29,10 +29,16 @@ public interface DataManager {
     Observable<Boolean> deleteMessage(String id);
     Observable<byte[]> getAttachmentData(String idMessage, String idAttachment);
 
+    Observable<Boolean> setMassageReadStatus(String messageId, boolean isNew);
+
     // FOR WORK WITH LOCAL LIST
     List<Messages.ShortMessage> getShortMessages();
     void setShortMessagesList(List<Messages.ShortMessage> list);
     void deleteShortMessagesItem(String id);
     void deleteShortMessagesItem(int position);
     void clearShortMessages();
+
+    void setMessageAsRead(String id);
+
+    void setMessageAsUnread(String id);
 }

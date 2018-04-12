@@ -26,4 +26,7 @@ public interface ApiHelper {
     Observable<Message> sendMessage(GoogleAccountCredential credential, MimeMessage message);
     Observable<Boolean> deleteMessage(GoogleAccountCredential credential, String id);
     Observable<byte[]> getAttachmentData(GoogleAccountCredential credential, String idMessage, String idAttachment);
+
+    Observable<Boolean> modifyMessage(GoogleAccountCredential credential, String messageId,
+                                        List<String> labelsToAdd, List<String> labelsToRemove);
 }

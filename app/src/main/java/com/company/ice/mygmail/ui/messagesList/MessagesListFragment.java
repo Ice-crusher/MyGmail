@@ -1,6 +1,5 @@
 package com.company.ice.mygmail.ui.messagesList;
 
-import android.app.Application;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -13,18 +12,15 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ProgressBar;
 
 import com.company.ice.mygmail.R;
 import com.company.ice.mygmail.data.network.model.Messages;
 import com.company.ice.mygmail.di.component.ActivityComponent;
 import com.company.ice.mygmail.ui.base.BaseFragment;
-import com.company.ice.mygmail.ui.base.CustomRVItemTouchListener;
-import com.company.ice.mygmail.ui.base.RecyclerViewItemClickListener;
+import com.company.ice.mygmail.ui.custom.CustomRVItemTouchListener;
+import com.company.ice.mygmail.ui.custom.RecyclerViewItemClickListener;
 import com.company.ice.mygmail.ui.custom.SimpleDividerItemDecoration;
-import com.company.ice.mygmail.ui.main.MainActivity;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -177,6 +173,11 @@ public class MessagesListFragment extends BaseFragment implements MessagesListMv
 
             @Override
             public void onLongClick(View view, int position) {
+
+            }
+
+            @Override
+            public void onStarSwitch(View view, boolean isActive) {
 
             }
         }));

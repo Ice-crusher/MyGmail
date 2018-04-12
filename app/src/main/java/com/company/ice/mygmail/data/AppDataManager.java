@@ -6,6 +6,7 @@ import android.util.Log;
 import com.company.ice.mygmail.data.network.ApiHelper;
 import com.company.ice.mygmail.data.network.model.Messages;
 import com.company.ice.mygmail.di.ApplicationContext;
+import com.company.ice.mygmail.utils.AppConstants;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.services.gmail.model.Message;
@@ -190,6 +191,20 @@ public class AppDataManager implements DataManager {
     public Observable<Boolean> deleteMessage(String id) {
         return mApiHelper.deleteMessage(mCredential, id);
     }
+
+    @Override
+    public Observable<Boolean> setMassageReadStatus(String messageId, boolean status){
+        List<String> temp = new ArrayList<>();
+        temp.add(AppConstants.MESSAGE_LABELS.UNREAD);
+        if (status) {
+            setMessageAsRead(messageId);
+            return mApiHelper.modifyMessage(mCredential, messageId, null, temp);
+        } else {
+            setMessageAsUnread(messageId);
+            return mApiHelper.modifyMessage(mCredential, messageId, temp, null);
+        }
+    }
+
     @Override
     public List<Messages.ShortMessage> getShortMessages(){
         return mMessageList;
@@ -210,10 +225,30 @@ public class AppDataManager implements DataManager {
     public void deleteShortMessagesItem(int position){
         mMessageList.remove(position);
     }
-
     @Override
     public void clearShortMessages(){
         mMessageList.clear();
+    }
+    @Override
+    public void setMessageAsRead(String id){
+        Log.d(TAG, String.valueOf(messagePosById(id)));
+        if (messagePosById(id) != -1){
+            mMessageList.get(messagePosById(id)).setNew(false);
+            Log.d(TAG, id + "was set as read");
+        }
+    }
+    @Override
+    public void setMessageAsUnread(String id){
+        if (messagePosById(id) != -1){
+            mMessageList.get(messagePosById(id)).setNew(true);
+        }
+    }
+
+    private int messagePosById(String id){
+        for (int i = 0; i < mMessageList.size(); i++){
+            if (mMessageList.get(i).getId().equals(id)) return i;
+        }
+        return -1;
     }
 
 }

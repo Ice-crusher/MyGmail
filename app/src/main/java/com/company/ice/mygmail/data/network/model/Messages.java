@@ -9,18 +9,20 @@ import java.util.List;
 
 public class Messages {
     public static class ShortMessage {
-        public String author;
-        public String authorEmail;
-        public String subject;
-        public String date;
-        public String id;
+        private String author;
+        private String authorEmail;
+        private String subject;
+        private String date;
+        private String id;
+        private boolean isNew;
 
-        public ShortMessage(String author, String authorEmail, String subject, String date, String id) {
+        public ShortMessage(String author, String authorEmail, String subject, String date, String id, boolean isNew) {
             this.author = author;
             this.authorEmail = authorEmail;
             this.subject = subject;
             this.date = date;
             this.id = id;
+            this.isNew = isNew;
         }
 
         public ShortMessage(ShortMessage shortMessage){
@@ -73,6 +75,14 @@ public class Messages {
         public void setAuthorEmail(String authorEmail) {
             this.authorEmail = authorEmail;
         }
+
+        public boolean isNew() {
+            return isNew;
+        }
+
+        public void setNew(boolean aNew) {
+            isNew = aNew;
+        }
     }
 
     public static class FullMessage extends ShortMessage{
@@ -80,12 +90,13 @@ public class Messages {
         private String text;
         private List<Attachment> attachments;
 
-        public FullMessage(String author, String authorEmail, String subject, String date, String id) {
-            super(author, authorEmail, subject, date, id);
+        public FullMessage(String author, String authorEmail, String subject, String date, String id, boolean isNew) {
+            super(author, authorEmail, subject, date, id, isNew);
         }
 
-        public FullMessage(String author, String authorEmail, String subject, String date, String id, String text, List<Attachment> attachments) {
-            super(author, authorEmail, subject, date, id);
+        public FullMessage(String author, String authorEmail, String subject, String date,
+                           String id, boolean isNew, String text, List<Attachment> attachments) {
+            super(author, authorEmail, subject, date, id, isNew);
             this.text = text;
             this.attachments = attachments;
         }
@@ -94,6 +105,10 @@ public class Messages {
             super((ShortMessage) fullMessage);
             this.text = fullMessage.getText();
             this.attachments = new ArrayList<>(fullMessage.getAttachments());
+        }
+
+        public FullMessage(){
+            super();
         }
 
         public String getText() {

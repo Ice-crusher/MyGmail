@@ -11,55 +11,30 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 
-import com.amulyakhare.textdrawable.TextDrawable;
-import com.amulyakhare.textdrawable.util.ColorGenerator;
 import com.company.ice.mygmail.R;
-import com.company.ice.mygmail.data.DataManager;
 import com.company.ice.mygmail.data.network.model.Messages;
 import com.company.ice.mygmail.ui.base.BaseActivity;
 import com.company.ice.mygmail.ui.detailedMessaage.DetailedMessageFragment;
 import com.company.ice.mygmail.ui.login.LoginActivity;
 import com.company.ice.mygmail.ui.messagesList.MessagesListFragment;
-import com.company.ice.mygmail.ui.sendingMessage.SendingMessageActivity;
 import com.company.ice.mygmail.utils.AppConstants;
-import com.company.ice.mygmail.utils.CommonUtils;
-import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.api.client.extensions.android.http.AndroidHttp;
-import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
-import com.google.api.client.googleapis.extensions.android.gms.auth.GooglePlayServicesAvailabilityIOException;
-import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
-
-import com.google.api.client.http.HttpTransport;
-import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.jackson2.JacksonFactory;
-
-import com.google.api.services.gmail.GmailScopes;
-
-import com.google.api.services.gmail.model.*;
 
 import android.Manifest;
 import android.app.Dialog;
-import android.app.ProgressDialog;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.support.annotation.NonNull;
-import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -67,11 +42,8 @@ import javax.inject.Inject;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
-import static com.company.ice.mygmail.utils.AppConstants.PREF_ACCOUNT_NAME;
-import static com.company.ice.mygmail.utils.AppConstants.REQUEST_ACCOUNT_PICKER;
 import static com.company.ice.mygmail.utils.AppConstants.REQUEST_PERMISSION_GET_ACCOUNTS;
 
 public class MainActivity extends BaseActivity
@@ -284,25 +256,25 @@ public class MainActivity extends BaseActivity
                         mDrawer.closeDrawer(GravityCompat.START);
                         switch (item.getItemId()) {
                             case R.id.nav_primary:
-                                mPresenter.onNavMenuItemClick(AppConstants.MESSAGE_QUERY.PRIMARY);
+                                mPresenter.onNavMenuItemClick(AppConstants.MESSAGE_LABELS.INBOX);
                                 return true;
                             case R.id.nav_starred:
-                                mPresenter.onNavMenuItemClick(AppConstants.MESSAGE_QUERY.STARRED);
+                                mPresenter.onNavMenuItemClick(AppConstants.MESSAGE_LABELS.STARRED);
                                 return true;
                             case R.id.nav_important:
-                                mPresenter.onNavMenuItemClick(AppConstants.MESSAGE_QUERY.IMPORTANT);
+                                mPresenter.onNavMenuItemClick(AppConstants.MESSAGE_LABELS.IMPORTANT);
                                 return true;
                             case R.id.nav_sent:
-                                mPresenter.onNavMenuItemClick(AppConstants.MESSAGE_QUERY.SENT);
+                                mPresenter.onNavMenuItemClick(AppConstants.MESSAGE_LABELS.SENT);
                                 return true;
                             case R.id.nav_drafts:
-                                mPresenter.onNavMenuItemClick(AppConstants.MESSAGE_QUERY.DRAFTS);
+                                mPresenter.onNavMenuItemClick(AppConstants.MESSAGE_LABELS.DRAFTS);
                                 return true;
                             case R.id.nav_spam:
-                                mPresenter.onNavMenuItemClick(AppConstants.MESSAGE_QUERY.SPAM);
+                                mPresenter.onNavMenuItemClick(AppConstants.MESSAGE_LABELS.SPAM);
                                 return true;
                             case R.id.nav_trash:
-                                mPresenter.onNavMenuItemClick(AppConstants.MESSAGE_QUERY.TRASH);
+                                mPresenter.onNavMenuItemClick(AppConstants.MESSAGE_LABELS.TRASH);
                                 return true;
                             default:
                                 return false;

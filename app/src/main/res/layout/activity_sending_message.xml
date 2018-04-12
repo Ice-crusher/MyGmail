@@ -37,6 +37,10 @@
                   android:layout_height="wrap_content"
                   android:layout_centerHorizontal="true"
                   android:layout_centerVertical="true"
+                  android:clickable="false"
+                  android:cursorVisible="false"
+                  android:focusable="false"
+                  android:focusableInTouchMode="false"
                   android:ems="10"
                   android:hint="From"
                   android:inputType="textPersonName" />

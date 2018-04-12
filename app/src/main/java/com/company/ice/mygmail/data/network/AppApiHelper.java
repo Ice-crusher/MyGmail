@@ -28,6 +28,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.company.ice.mygmail.utils.AppConstants.MIME_TYPE;
+import com.google.api.services.gmail.model.ModifyMessageRequest;
 
 import javax.inject.Inject;
 import javax.mail.MessagingException;
@@ -96,14 +97,14 @@ public class AppApiHelper implements ApiHelper {
         ListMessagesResponse messageResponse;
 //        if (currentPageToken != null) {
         List<String> temp = new ArrayList<>();
-        temp.add("INBOX");
+        temp.add(AppConstants.MESSAGE_LABELS.INBOX);
 
             messageResponse =
                     service.users().messages().list(user)
                             .setPageToken(currentPageToken)
                             .setMaxResults(Long.valueOf(10))
-//                            .setLabelIds(temp)
-                            .setQ(query)
+                            .setLabelIds(temp)
+//                            .setQ(query)
                             .execute();
 //        } else {
 //            messageResponse =
@@ -123,6 +124,7 @@ public class AppApiHelper implements ApiHelper {
                     .setFormat("metadata")
                     .execute();
             Date date = new Date(message2.getInternalDate());
+            boolean isNew = message2.getLabelIds().contains("UNREAD");
 
             MessagePart payload = message2.getPayload();
             if (payload == null) Log.d(TAG, "PART IS NULL");
@@ -149,6 +151,7 @@ public class AppApiHelper implements ApiHelper {
             shortMessage.setAuthor(auth);
             shortMessage.setAuthorEmail(authMail);
             shortMessage.setId(message.getId());
+            shortMessage.setNew(isNew);
 
 //            Log.d(TAG, s);
 
@@ -179,7 +182,7 @@ public class AppApiHelper implements ApiHelper {
 
 //        Log.d(TAG, id);
 
-        Messages.FullMessage fullMessage = new Messages.FullMessage("Name", "Description", "01/01/2000", "00000000", "text");
+        Messages.FullMessage fullMessage = new Messages.FullMessage();
 
         Message message2 = service.users().messages().get(user, id).setFormat("full").execute();
 
@@ -209,6 +212,8 @@ public class AppApiHelper implements ApiHelper {
         parseAttachments(payload, list);
         Log.d(TAG, "List attachments id size: " + list.size());
 
+        boolean isNew = message2.getLabelIds().contains("UNREAD");
+
         fullMessage.setAttachments(list);
         fullMessage.setDate(date);
         fullMessage.setSubject(subject);
@@ -217,6 +222,7 @@ public class AppApiHelper implements ApiHelper {
         fullMessage.setAuthorEmail(authMail);
         fullMessage.setText(text);
         fullMessage.setId(id);
+        fullMessage.setNew(isNew);
 
         return fullMessage;
     }
@@ -254,6 +260,7 @@ public class AppApiHelper implements ApiHelper {
      *       -image/png (attached image)
     */
 
+    // Parse text message in recursion way
     private String parseText(MessagePart payload) {
         // TODO must be fixed for message with text/html only
         String text = "NULL";
@@ -266,29 +273,11 @@ public class AppApiHelper implements ApiHelper {
                 if (!text.equals("NULL"))
                     break;
             }
-//        if (payload.getMimeType().equals(MIME_TYPE.TEXT_PLAIN)) // Plain Email
-//
-//        if (payload.getMimeType().equals(MIME_TYPE.MULTIPAR_ALTERNATIVE)) // HTML Email
-//            text = StringUtils.newStringUtf8(Base64.decodeBase64(payload.getParts().get(0).getBody().getData()));
-//
-//        else if (payload.getMimeType().equals(MIME_TYPE.MULTIPAR_RELATED)) { // HTML Email with embedded image
-//            text = StringUtils.newStringUtf8(Base64.decodeBase64(payload.getParts().get(0)
-//                    .getParts().get(0).getBody().getData()));
-//        }
-//
-//        else if (payload.getMimeType().equals(MIME_TYPE.MULTIPAR_MIXED)) {
-//            if (payload.getParts().get(0).getMimeType().equals(MIME_TYPE.MULTIPAR_RELATED)) { // HTML Email with embedded image and attachment
-//                text = StringUtils.newStringUtf8(Base64.decodeBase64(payload.getParts().get(0)
-//                        .getParts().get(0)
-//                        .getParts().get(0).getBody().getData()));
-//            } else if (payload.getParts().get(0).getMimeType().equals(MIME_TYPE.MULTIPAR_ALTERNATIVE)) { //HTML Email with attachment
-//                text = StringUtils.newStringUtf8(Base64.decodeBase64(payload.getParts().get(0)
-//                        .getParts().get(0).getBody().getData()));
-//            }
-//        }
+
         return text;
     }
 
+    // Parse attachments in recursion way
     private void parseAttachments(MessagePart payload, List<Messages.Attachment> list){
 
         if (payload.getMimeType().contains("application") || payload.getMimeType().contains("image")){
@@ -303,7 +292,6 @@ public class AppApiHelper implements ApiHelper {
 
     @Override
     public Observable<Message> sendMessage(GoogleAccountCredential credential, MimeMessage mimeMessage){
- //           throws MessagingException, IOException {
         Observable<Message> observable = Observable.create(subscriber -> {
             Gmail service = createGmailService(credential);
 
@@ -376,6 +364,34 @@ public class AppApiHelper implements ApiHelper {
 
         return observable;
     }
+
+    /**
+     * Modify the labels a message is associated with.
+     * @param messageId ID of Message to Modify.
+     * @param labelsToAdd List of label ids to add.
+     * @param labelsToRemove List of label ids to remove.
+     */
+    @Override
+    public Observable<Boolean> modifyMessage(GoogleAccountCredential credential, String messageId,
+                                             List<String> labelsToAdd, List<String> labelsToRemove) {
+
+        Observable<Boolean> observable = Observable.create(subscriber -> {
+            Gmail service = createGmailService(credential);
+            String user = "me";
+            try {
+                ModifyMessageRequest mods = new ModifyMessageRequest().setAddLabelIds(labelsToAdd)
+                        .setRemoveLabelIds(labelsToRemove);
+                Message message = service.users().messages().modify(user, messageId, mods).execute();
+
+                subscriber.onNext(true);
+            } catch (Exception e) {
+                Log.e(TAG, e.toString());
+                subscriber.onError(e);
+            }
+        });
+        return observable;
+    }
+
 }
 
 
