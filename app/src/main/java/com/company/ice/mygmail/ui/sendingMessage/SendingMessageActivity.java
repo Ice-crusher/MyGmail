@@ -21,6 +21,7 @@ import com.company.ice.mygmail.ui.custom.AttachmentsAdapter;
 import com.company.ice.mygmail.utils.AppConstants;
 import com.company.ice.mygmail.utils.CommonUtils;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,6 +41,7 @@ public class SendingMessageActivity extends BaseActivity implements SendingMessa
     public static final String TO = "extra_to";
     public static final String SUBJECT = "extra_subject";
     public static final String TEXT = "extra_text";
+    public static final String ATTACHMENTS = "extra_attachments";
 
     @Inject
     SendingMessagePresenter<SendingMessageMvpView> mPresenter;
@@ -97,12 +99,15 @@ public class SendingMessageActivity extends BaseActivity implements SendingMessa
         Intent intent = new Intent(context, SendingMessageActivity.class);
         return intent;
     }
-    public static Intent getStartIntent(Context context, String to, String subject, String text){
+    public static Intent getStartIntent(Context context, String to, String subject, String text, ArrayList<Messages.Attachment> fileList){
         Intent intent = new Intent(context, SendingMessageActivity.class);
+        Bundle bundle = new Bundle();
  //       intent.putExtra(FROM, from);
-        intent.putExtra(TO, to);
-        intent.putExtra(SUBJECT, subject);
-        intent.putExtra(TEXT, text);
+        bundle.putString(TO, to);
+        bundle.putString(SUBJECT, subject);
+        bundle.putString(TEXT, text);
+        bundle.putSerializable(ATTACHMENTS, fileList);
+        intent.putExtras(bundle);
         return intent;
     }
 

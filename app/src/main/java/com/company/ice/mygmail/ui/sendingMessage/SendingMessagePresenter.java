@@ -32,6 +32,7 @@ import javax.inject.Inject;
 import io.reactivex.disposables.CompositeDisposable;
 import pub.devrel.easypermissions.EasyPermissions;
 
+import static com.company.ice.mygmail.ui.sendingMessage.SendingMessageActivity.ATTACHMENTS;
 import static com.company.ice.mygmail.ui.sendingMessage.SendingMessageActivity.SUBJECT;
 import static com.company.ice.mygmail.ui.sendingMessage.SendingMessageActivity.TEXT;
 import static com.company.ice.mygmail.ui.sendingMessage.SendingMessageActivity.TO;
@@ -69,24 +70,27 @@ public class SendingMessagePresenter<V extends SendingMessageMvpView> extends Ba
 
     @Override
     public void onViewPrepared(Bundle bundle) {
-        if (bundle != null) {
+        if (bundle != null) { // IF its a reply pr forward message
             String from = getDataManager().getCredential().getSelectedAccountName();
             String to = (String) bundle.get(TO);
             String subject = (String) bundle.get(SUBJECT);
             String text = "\n\n" + bundle.get(TEXT);
+            List<Messages.Attachment> listAttachments = (ArrayList<Messages.Attachment>)bundle.get(ATTACHMENTS);
             getMvpView().fillView(from, to, subject, text);
-//        Log.d(TAG, bundle.get(TO));
-            if (((String) bundle.get(TO)).equals("")) {
+            if (listAttachments != null && listAttachments.size() > 0) // if has attachments
+                getMvpView().updateAttachments(listAttachments);
+
+            if (((String) bundle.get(TO)).equals("")) { // if it is a forward message
                 getMvpView().setCursorPositionFieldTo(0);
                 getMvpView().showKeyboard();
-            } else {
+            } else { // if it is a reply message
                 getMvpView().setCursorPositionFieldText(0);
                 getMvpView().showKeyboard();
             }
+        } else { //
+            String from = getDataManager().getCredential().getSelectedAccountName();
+            getMvpView().fillView(from, "", "", "");
         }
-
-        String from = getDataManager().getCredential().getSelectedAccountName();
-        getMvpView().fillView(from, "", "", "");
     }
 
     @Override
@@ -127,7 +131,8 @@ public class SendingMessagePresenter<V extends SendingMessageMvpView> extends Ba
 
     @Override
     public void onCancelButtonClick(int position) {
-        mFilesList.remove(position);
+        if (mFilesList.size() > position)
+            mFilesList.remove(position);
         getMvpView().removeItemFromList(position);
     }
 

@@ -177,6 +177,20 @@ public class MainActivity extends BaseActivity
     }
 
     @Override
+    public void insertDetailedMessageFragment(String id) {
+
+        showUpButton(true);
+        DetailedMessageFragment fragment = DetailedMessageFragment.newInstance(id, "some");
+        getSupportFragmentManager().beginTransaction()
+                .setCustomAnimations(R.anim.enter, R.anim.exit, R.anim.pop_enter, R.anim.pop_exit)
+                .replace(R.id.messages_frame_layout, fragment, DetailedMessageFragment.TAG)
+                .addToBackStack(null)
+                .commit();
+        mFloatingActionButton.hide();
+    }
+
+
+    @Override
     public void onFragmentAttached(String tag) {
         Log.d(TAG, "FRAGMENT ATTACHED TAG: " + tag);
         if(mFloatingActionButton != null) { // If its recreate activity (rotate display)
@@ -195,20 +209,6 @@ public class MainActivity extends BaseActivity
             mFloatingActionButton.show();
 
         super.onFragmentDetached(tag);
-    }
-
-    @Override
-    public void insertDetailedMessageFragment(String id) {
-
-        showUpButton(true);
-        DetailedMessageFragment fragment = DetailedMessageFragment.newInstance(id, "some");
-        getSupportFragmentManager().beginTransaction()
-                .setCustomAnimations(R.anim.enter, R.anim.exit, R.anim.pop_enter, R.anim.pop_exit)
-                .replace(R.id.messages_frame_layout, fragment, DetailedMessageFragment.TAG)
-                .addToBackStack(null)
-                .commit();
-        mFloatingActionButton.hide();
-
     }
 
     @Override
@@ -321,8 +321,6 @@ public class MainActivity extends BaseActivity
         getMenuInflater().inflate(R.menu.menu, menu);
         return super.onCreateOptionsMenu(menu);
     }
-
-
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

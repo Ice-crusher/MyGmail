@@ -33,7 +33,6 @@ public class LoginPresenter<V extends LoginMvpView> extends BasePresenter<V> imp
 
     private static String TAG = "LoginPresenter";
 
-    private static final String PREF_ACCOUNT_NAME = "accountName";
 
     @Inject
     @ApplicationContext
@@ -60,7 +59,7 @@ public class LoginPresenter<V extends LoginMvpView> extends BasePresenter<V> imp
         SharedPreferences settings =
                 appContext.getSharedPreferences(AppConstants.SHARED_PREFERENCE_TAG, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
-        editor.putString(PREF_ACCOUNT_NAME, null);
+        editor.putString(AppConstants.PREF_ACCOUNT_NAME, null);
         editor.apply();
         mCredential.setSelectedAccountName(null);
     }
@@ -95,11 +94,11 @@ public class LoginPresenter<V extends LoginMvpView> extends BasePresenter<V> imp
     private void chooseAccount() {
         if (EasyPermissions.hasPermissions(appContext, Manifest.permission.GET_ACCOUNTS)) {
             String accountName = appContext.getSharedPreferences(AppConstants.SHARED_PREFERENCE_TAG, Context.MODE_PRIVATE)
-                    .getString(PREF_ACCOUNT_NAME, null);
+                    .getString(AppConstants.PREF_ACCOUNT_NAME, null);
             if (accountName != null) {
                 mCredential.setSelectedAccountName(accountName);
 
-                Log.d(TAG,"SELECTED ACCOUNT NAME: " + mCredential.getSelectedAccountName().toString());
+                Log.d(TAG,"SELECTED ACCOUNT NAME: " + mCredential.getSelectedAccountName());
                 loadMainActivity();
             } else {
                 // Start a dialog from which the user can choose an account
@@ -147,7 +146,7 @@ public class LoginPresenter<V extends LoginMvpView> extends BasePresenter<V> imp
                         SharedPreferences settings =
                                 appContext.getSharedPreferences(AppConstants.SHARED_PREFERENCE_TAG, Context.MODE_PRIVATE);
                         SharedPreferences.Editor editor = settings.edit();
-                        editor.putString(PREF_ACCOUNT_NAME, accountName);
+                        editor.putString(AppConstants.PREF_ACCOUNT_NAME, accountName);
                         editor.apply();
                         mCredential.setSelectedAccountName(accountName);
                         loadMainActivity();

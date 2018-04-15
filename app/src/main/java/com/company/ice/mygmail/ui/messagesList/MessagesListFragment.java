@@ -62,8 +62,6 @@ public class MessagesListFragment extends BaseFragment implements MessagesListMv
     @BindView(R.id.swipe_refresh_layout)
     SwipeRefreshLayout mSwipeRefreshLayout;
 
-//    ProgressBar mProgressBarLoadingItems; // not work
-
     private boolean isLoadingMore;
     private boolean isNewFragment;
 

@@ -53,7 +53,6 @@ public class DetailedMessagePresenter<V extends DetailedMessageMvpView> extends 
     public void onReplyClick() {
         if (mFullMessage == null) return;
         Messages.FullMessage temp = new Messages.FullMessage(mFullMessage);
-        //temp.set
         getMvpView().sendMessageFormCall(temp);
     }
 
@@ -62,6 +61,7 @@ public class DetailedMessagePresenter<V extends DetailedMessageMvpView> extends 
         if (mFullMessage == null) return;
         Messages.FullMessage temp = new Messages.FullMessage(mFullMessage);
         temp.setAuthor("");
+//        Log.d(TAG, temp.getText());
         getMvpView().sendMessageFormCall(temp);
     }
 

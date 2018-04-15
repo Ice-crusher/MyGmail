@@ -191,8 +191,6 @@ public class DetailedMessageFragment extends BaseFragment implements DetailedMes
         });
 
         mPresenter.onViewPrepared(mId);
-
-
     }
 
     @OnClick(R.id.detailed_reply_button)

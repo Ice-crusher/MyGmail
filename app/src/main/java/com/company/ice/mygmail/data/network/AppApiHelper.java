@@ -97,7 +97,7 @@ public class AppApiHelper implements ApiHelper {
         ListMessagesResponse messageResponse;
 //        if (currentPageToken != null) {
         List<String> temp = new ArrayList<>();
-        temp.add(AppConstants.MESSAGE_LABELS.INBOX);
+        temp.add(query);
 
             messageResponse =
                     service.users().messages().list(user)

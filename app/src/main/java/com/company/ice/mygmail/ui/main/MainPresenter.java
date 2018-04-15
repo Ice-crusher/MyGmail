@@ -18,6 +18,9 @@ import com.company.ice.mygmail.utils.CommonUtils;
 import com.company.ice.mygmail.utils.rx.SchedulerProvider;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.inject.Inject;
 
 import io.reactivex.disposables.CompositeDisposable;
@@ -30,7 +33,6 @@ public class MainPresenter<V extends MainMvpView> extends BasePresenter<V>
         implements MainMvpPresenter<V> {
 
     private static final String TAG = "MainPresenter";
-    private static final String PREF_ACCOUNT_NAME = "accountName";
 
 
 
@@ -65,10 +67,12 @@ public class MainPresenter<V extends MainMvpView> extends BasePresenter<V>
 
     @Override
     public void onClickResendButtons(Messages.FullMessage fullMessage){
+//        List<Messages.Attachment> temp = new ArrayList<>(fullMessage.getAttachments());
         getMvpView().startSendFormActivity(SendingMessageActivity.getStartIntent(mActivity,
                 fullMessage.getAuthorEmail(),
                 fullMessage.getSubject(),
-                fullMessage.getText()) );
+                fullMessage.getText(),
+                (ArrayList<Messages.Attachment>)fullMessage.getAttachments()));
     }
 
     @Override
@@ -80,6 +84,10 @@ public class MainPresenter<V extends MainMvpView> extends BasePresenter<V>
         }
 
 
+        String accountName = appContext.getSharedPreferences(AppConstants.SHARED_PREFERENCE_TAG, Context.MODE_PRIVATE)
+                .getString(AppConstants.PREF_ACCOUNT_NAME, null);
+        mCredential.setSelectedAccountName(accountName);
+        Log.d(TAG, "mCredential " + mCredential.toString());
         Log.d(TAG, "SELECTED ACCOUNT: " + mCredential.getSelectedAccountName());
         if (mCredential.getSelectedAccountName() == null) {
 //            chooseAccount();
@@ -133,7 +141,7 @@ public class MainPresenter<V extends MainMvpView> extends BasePresenter<V>
                         SharedPreferences settings =
                                 appContext.getSharedPreferences(AppConstants.SHARED_PREFERENCE_TAG, Context.MODE_PRIVATE);
                         SharedPreferences.Editor editor = settings.edit();
-                        editor.putString(PREF_ACCOUNT_NAME, accountName);
+                        editor.putString(AppConstants.PREF_ACCOUNT_NAME, accountName);
                         editor.apply();
                         mCredential.setSelectedAccountName(accountName);
                         getDataManager().setCredential(mCredential);
