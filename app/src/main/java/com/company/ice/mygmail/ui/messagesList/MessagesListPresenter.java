@@ -1,5 +1,6 @@
 package com.company.ice.mygmail.ui.messagesList;
 
+import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -32,6 +33,9 @@ public class MessagesListPresenter<V extends MessagesListMvpView> extends BasePr
     String query;
 
     @Inject
+    AppCompatActivity mActivity;
+
+    @Inject
     public MessagesListPresenter(DataManager dataManager, SchedulerProvider schedulerProvider, CompositeDisposable compositeDisposable) {
         super(dataManager, schedulerProvider, compositeDisposable);
 //        mMessageList = new ArrayList<Messages.ShortMessage>();
@@ -52,6 +56,8 @@ public class MessagesListPresenter<V extends MessagesListMvpView> extends BasePr
             return;
         }
         loadMore(true);
+
+        ((MessagesListFragment.Callback)mActivity).onFragmentViewCreate(query);
     }
 
     @Override
@@ -63,11 +69,26 @@ public class MessagesListPresenter<V extends MessagesListMvpView> extends BasePr
     }
 
     @Override
+    public void onStarChanged(int position, boolean isStarred){
+        Log.d(TAG, "onStarChanged: " + isStarred);
+        getDataManager()
+                        .setMassageStarredStatus(getDataManager().getShortMessages().get(position).getId(), isStarred)
+                        .subscribeOn(getSchedulerProvider().io())
+                        .observeOn(getSchedulerProvider().ui())
+                        .subscribe(complete -> {
+                            Log.d(TAG, "onStarChanged: from dataManager: " + isStarred);
+                        }, error -> {
+                            Log.e(TAG, error.toString());
+                        });
+    }
+
+    @Override
     public void onClickListElement(int position) {
-        //TODO change the way for do this
+        //TODO change the way for do this, maybe
 //        getMvpView().showMessage(String.valueOf(position));
         if (!getDataManager().getShortMessages().isEmpty())
-            getMvpView().callMainActivityClick(getDataManager().getShortMessages().get(position).getId());
+//            getMvpView().callMainActivityClick(getDataManager().getShortMessages().get(position).getId());
+            ((MessagesListFragment.Callback) mActivity).onClick(getDataManager().getShortMessages().get(position).getId());
     }
 
     private void loadMore(boolean withResetToken){

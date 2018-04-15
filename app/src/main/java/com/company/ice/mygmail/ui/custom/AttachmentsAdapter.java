@@ -110,12 +110,9 @@ public class AttachmentsAdapter extends BaseAdapter {
 
         holder.downloadButton.setBackgroundResource(idResource);
 
-        holder.downloadButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (mOnClickListener != null)
-                    mOnClickListener.onActionButtonClick(position);
-            }
+        holder.downloadButton.setOnClickListener(view -> {
+            if (mOnClickListener != null)
+                mOnClickListener.onActionButtonClick(position);
         });
         return convertView;
     }

@@ -13,6 +13,6 @@ import java.util.List;
 public interface MessagesListMvpView extends MvpView {
 
     void updateMessages(List<Messages.ShortMessage> list);
-    void callMainActivityClick(String id);
+//    void callMainActivityClick(String id);
     void refreshItems();
 }

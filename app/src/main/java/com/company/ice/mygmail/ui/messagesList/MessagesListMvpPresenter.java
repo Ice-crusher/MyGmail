@@ -11,6 +11,9 @@ public interface MessagesListMvpPresenter<V extends MessagesListMvpView> extends
     void onViewPrepared(String query);
     void onLoadMore();
     void onRefresh();
+
+    void onStarChanged(int position, boolean isStarred);
+
     void onClickListElement(int position);
     void onNewFragmentAttached();
 

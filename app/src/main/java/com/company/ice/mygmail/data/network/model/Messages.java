@@ -15,14 +15,16 @@ public class Messages {
         private String date;
         private String id;
         private boolean isNew;
+        private boolean isStarred;
 
-        public ShortMessage(String author, String authorEmail, String subject, String date, String id, boolean isNew) {
+        public ShortMessage(String author, String authorEmail, String subject, String date, String id, boolean isNew, boolean isStarred) {
             this.author = author;
             this.authorEmail = authorEmail;
             this.subject = subject;
             this.date = date;
             this.id = id;
             this.isNew = isNew;
+            this.isStarred = isStarred;
         }
 
         public ShortMessage(ShortMessage shortMessage){
@@ -31,9 +33,18 @@ public class Messages {
             this.subject = shortMessage.getSubject();
             this.date = shortMessage.getDate();
             this.id = shortMessage.getId();
+            this.isNew = shortMessage.isNew();
+            this.isStarred = shortMessage.isStarred();
         }
 
         public ShortMessage() {
+            this.author = "author";
+            this.authorEmail = "email";
+            this.subject = "subject";
+            this.date = "01/01/1965";
+            this.id = "007";
+            this.isNew = false;
+            this.isStarred = false;
         }
 
         public String getAuthor() {
@@ -83,6 +94,14 @@ public class Messages {
         public void setNew(boolean aNew) {
             isNew = aNew;
         }
+
+        public boolean isStarred() {
+            return isStarred;
+        }
+
+        public void setStarred(boolean starred) {
+            isStarred = starred;
+        }
     }
 
     public static class FullMessage extends ShortMessage{
@@ -90,13 +109,13 @@ public class Messages {
         private String text;
         private List<Attachment> attachments;
 
-        public FullMessage(String author, String authorEmail, String subject, String date, String id, boolean isNew) {
-            super(author, authorEmail, subject, date, id, isNew);
+        public FullMessage(String author, String authorEmail, String subject, String date, String id, boolean isNew, boolean isStarred) {
+            super(author, authorEmail, subject, date, id, isNew, isStarred);
         }
 
         public FullMessage(String author, String authorEmail, String subject, String date,
-                           String id, boolean isNew, String text, List<Attachment> attachments) {
-            super(author, authorEmail, subject, date, id, isNew);
+                           String id, boolean isNew, boolean isStarred, String text, List<Attachment> attachments) {
+            super(author, authorEmail, subject, date, id, isNew, isStarred);
             this.text = text;
             this.attachments = attachments;
         }

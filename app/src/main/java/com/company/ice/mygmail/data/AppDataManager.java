@@ -206,6 +206,19 @@ public class AppDataManager implements DataManager {
     }
 
     @Override
+    public Observable<Boolean> setMassageStarredStatus(String messageId, boolean status){
+        List<String> temp = new ArrayList<>();
+        temp.add(AppConstants.MESSAGE_LABELS.STARRED);
+        if (!status) {
+            setMessageAsUnstarred(messageId);
+            return mApiHelper.modifyMessage(mCredential, messageId, null, temp);
+        } else {
+            setMessageAsStarred(messageId);
+            return mApiHelper.modifyMessage(mCredential, messageId, temp, null);
+        }
+    }
+
+    @Override
     public List<Messages.ShortMessage> getShortMessages(){
         return mMessageList;
     }
@@ -229,18 +242,31 @@ public class AppDataManager implements DataManager {
     public void clearShortMessages(){
         mMessageList.clear();
     }
-    @Override
-    public void setMessageAsRead(String id){
-        Log.d(TAG, String.valueOf(messagePosById(id)));
-        if (messagePosById(id) != -1){
-            mMessageList.get(messagePosById(id)).setNew(false);
-            Log.d(TAG, id + "was set as read");
+
+    private void setMessageAsRead(String id){
+        int pos = messagePosById(id);
+        if (pos != -1){
+            mMessageList.get(pos).setNew(false);
         }
     }
-    @Override
-    public void setMessageAsUnread(String id){
-        if (messagePosById(id) != -1){
-            mMessageList.get(messagePosById(id)).setNew(true);
+    private void setMessageAsUnread(String id){
+        int pos = messagePosById(id);
+        if (pos != -1){
+            mMessageList.get(pos).setNew(true);
+        }
+    }
+
+    public void setMessageAsStarred(String id){
+        int pos = messagePosById(id);
+        if (pos != -1){
+            mMessageList.get(pos).setStarred(true);
+        }
+    }
+
+    public void setMessageAsUnstarred(String id){
+        int pos = messagePosById(id);
+        if (pos != -1){
+            mMessageList.get(pos).setStarred(false);
         }
     }
 

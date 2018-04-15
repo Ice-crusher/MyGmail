@@ -5,12 +5,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.amulyakhare.textdrawable.TextDrawable;
-import com.amulyakhare.textdrawable.util.ColorGenerator;
 import com.company.ice.mygmail.R;
 import com.company.ice.mygmail.data.network.model.Messages;
 import com.company.ice.mygmail.ui.base.BaseViewHolder;
@@ -21,7 +20,6 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 
 /**
  * Created by Ice on 03.02.2018.
@@ -39,15 +37,15 @@ public class MessagesListAdapter extends RecyclerView.Adapter<BaseViewHolder>{
     public static final int VIEW_TYPE_NORMAL = 1;
     public static final int VIEW_TYPE_FOOTER = 2;
 
-    private Callback mCallback;
+    private OnClickListener mListener;
     private List<Messages.ShortMessage> mMessageList;
 
     public MessagesListAdapter(ArrayList<Messages.ShortMessage> list) {
         mMessageList = list;
     }
 
-    public void setCallback(Callback callback) {
-        mCallback = callback;
+    public void setListener(OnClickListener listener) {
+        mListener = listener;
     }
 
     @Override
@@ -93,9 +91,9 @@ public class MessagesListAdapter extends RecyclerView.Adapter<BaseViewHolder>{
     }
 
     public void addItems(List<Messages.ShortMessage> list) {
-        Log.d(TAG, list.get(0).getAuthor());
-        Log.d(TAG, list.get(0).getDate());
-        Log.d(TAG, list.get(0).getSubject());
+//        Log.d(TAG, list.get(0).getAuthor());
+//        Log.d(TAG, list.get(0).getDate());
+//        Log.d(TAG, list.get(0).getSubject());
         mMessageList.addAll(list);
 //        mMessageList = list;
         notifyDataSetChanged();
@@ -106,8 +104,10 @@ public class MessagesListAdapter extends RecyclerView.Adapter<BaseViewHolder>{
         notifyDataSetChanged();
     }
 
-    public interface Callback {
-        void onBlogEmptyViewRetryClick();
+
+    public interface OnClickListener{
+        void onStarButtonClick(int position, boolean isStarred);
+        void onClick(int position);
     }
 
     public class ViewHolder extends BaseViewHolder {
@@ -130,6 +130,9 @@ public class MessagesListAdapter extends RecyclerView.Adapter<BaseViewHolder>{
         @BindView(R.id.new_message_tag)
         ImageView newMessageTag;
 
+        @BindView(R.id.star_checkBox)
+        CheckBox starCheckBox;
+
         public ViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
@@ -151,6 +154,7 @@ public class MessagesListAdapter extends RecyclerView.Adapter<BaseViewHolder>{
 //                        .centerCrop()
 //                        .into(coverImageView);
 //            }
+            Log.d(TAG, position + "  " +  shortMessage.getSubject());
 
             if (shortMessage.getAuthor() != null) {
                 authorTextView.setText(shortMessage.getAuthor());
@@ -168,6 +172,27 @@ public class MessagesListAdapter extends RecyclerView.Adapter<BaseViewHolder>{
                 newMessageTag.setVisibility(View.VISIBLE);
             else
                 newMessageTag.setVisibility(View.INVISIBLE);
+
+            //in some cases, it will prevent unwanted situations
+            starCheckBox.setOnCheckedChangeListener(null);
+            Log.d(TAG, "mMessageList: " + mMessageList.get(position).isStarred());
+//            if (mMessageList.get(position).isStarred())
+                starCheckBox.setChecked(mMessageList.get(position).isStarred());
+            starCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                    Log.d(TAG, "Listener checkedChanger: " + b);
+                    mListener.onStarButtonClick(position, b);
+                }
+            });
+
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    mListener.onClick(position);
+                }
+            });
 
 //            itemView.setOnClickListener(new View.OnClickListener() {
 //                @Override
@@ -206,8 +231,8 @@ public class MessagesListAdapter extends RecyclerView.Adapter<BaseViewHolder>{
 
 //        @OnClick(R.id.buttonRetryMessageLoad)
 //        void onRetryClick() {
-//            if (mCallback != null)
-//                mCallback.onBlogEmptyViewRetryClick();
+//            if (mListener != null)
+//                mListener.onBlogEmptyViewRetryClick();
 //        }
     }
 

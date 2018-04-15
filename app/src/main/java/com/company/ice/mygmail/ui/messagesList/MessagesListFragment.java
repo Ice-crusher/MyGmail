@@ -34,7 +34,7 @@ import butterknife.ButterKnife;
  * Use the {@link MessagesListFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class MessagesListFragment extends BaseFragment implements MessagesListMvpView, MessagesListAdapter.Callback {
+public class MessagesListFragment extends BaseFragment implements MessagesListMvpView, MessagesListAdapter.OnClickListener {
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -115,7 +115,7 @@ public class MessagesListFragment extends BaseFragment implements MessagesListMv
             component.inject(this);
             setUnBinder(ButterKnife.bind(this, view));
             mPresenter.onAttach(this);
-            mListAdapter.setCallback(this);
+            mListAdapter.setListener(this);
         }
         setActionBarTitle(query);
         if (isNewFragment) {
@@ -168,18 +168,14 @@ public class MessagesListFragment extends BaseFragment implements MessagesListMv
         mRecyclerView.addOnItemTouchListener(new CustomRVItemTouchListener(getContext(), mRecyclerView, new RecyclerViewItemClickListener() {
             @Override
             public void onClick(View view, int position) {
-                mPresenter.onClickListElement(position);
+//                mPresenter.onClickListElement(position);
             }
 
             @Override
             public void onLongClick(View view, int position) {
-
+                showMessage("Long click");
             }
 
-            @Override
-            public void onStarSwitch(View view, boolean isActive) {
-
-            }
         }));
 
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -265,17 +261,23 @@ public class MessagesListFragment extends BaseFragment implements MessagesListMv
         mListAdapter.deleteItems();
     }
 
+//    @Override
+//    public void callMainActivityClick(String id) {
+//        ((Callback)getActivity()).onClick(id);
+//    }
+
     @Override
-    public void callMainActivityClick(String id) {
-        ((ClickListener)getActivity()).onClick(id);
+    public void onStarButtonClick(int position, boolean isStarred) {
+        mPresenter.onStarChanged(position, isStarred);
     }
 
     @Override
-    public void onBlogEmptyViewRetryClick() {
-
+    public void onClick(int position) {
+        mPresenter.onClickListElement(position);
     }
 
-    public interface ClickListener {
+    public interface Callback {
         void onClick(String id);
+        void onFragmentViewCreate(String messageLabel);
     }
 }

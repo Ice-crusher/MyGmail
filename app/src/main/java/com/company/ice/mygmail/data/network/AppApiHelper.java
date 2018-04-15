@@ -124,7 +124,8 @@ public class AppApiHelper implements ApiHelper {
                     .setFormat("metadata")
                     .execute();
             Date date = new Date(message2.getInternalDate());
-            boolean isNew = message2.getLabelIds().contains("UNREAD");
+            boolean isNew = message2.getLabelIds().contains(AppConstants.MESSAGE_LABELS.UNREAD);
+            boolean isStarred = message2.getLabelIds().contains(AppConstants.MESSAGE_LABELS.STARRED);
 
             MessagePart payload = message2.getPayload();
             if (payload == null) Log.d(TAG, "PART IS NULL");
@@ -152,6 +153,7 @@ public class AppApiHelper implements ApiHelper {
             shortMessage.setAuthorEmail(authMail);
             shortMessage.setId(message.getId());
             shortMessage.setNew(isNew);
+            shortMessage.setStarred(isStarred);
 
 //            Log.d(TAG, s);
 
@@ -212,7 +214,8 @@ public class AppApiHelper implements ApiHelper {
         parseAttachments(payload, list);
         Log.d(TAG, "List attachments id size: " + list.size());
 
-        boolean isNew = message2.getLabelIds().contains("UNREAD");
+        boolean isNew = message2.getLabelIds().contains(AppConstants.MESSAGE_LABELS.UNREAD);
+        boolean isStarred = message2.getLabelIds().contains(AppConstants.MESSAGE_LABELS.STARRED);
 
         fullMessage.setAttachments(list);
         fullMessage.setDate(date);
@@ -223,6 +226,7 @@ public class AppApiHelper implements ApiHelper {
         fullMessage.setText(text);
         fullMessage.setId(id);
         fullMessage.setNew(isNew);
+        fullMessage.setStarred(isStarred);
 
         return fullMessage;
     }

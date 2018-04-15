@@ -117,6 +117,18 @@ public class DetailedMessagePresenter<V extends DetailedMessageMvpView> extends 
         }
     }
 
+    @Override
+    public void onStarCheckBoxCheckedChanged(boolean isChecked){
+        getDataManager().setMassageStarredStatus(mFullMessage.getId(), isChecked)
+                .subscribeOn(getSchedulerProvider().io())
+                .observeOn(getSchedulerProvider().ui())
+                .subscribe( complete -> {
+
+                }, error -> {
+                    Log.e(TAG, error.toString());
+                });
+    }
+
     private boolean hasPermissions(String[] perms){
         return EasyPermissions.hasPermissions(mActivityContext, perms);
     }

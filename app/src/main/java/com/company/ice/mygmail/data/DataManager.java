@@ -31,6 +31,8 @@ public interface DataManager {
 
     Observable<Boolean> setMassageReadStatus(String messageId, boolean isNew);
 
+    Observable<Boolean> setMassageStarredStatus(String messageId, boolean status);
+
     // FOR WORK WITH LOCAL LIST
     List<Messages.ShortMessage> getShortMessages();
     void setShortMessagesList(List<Messages.ShortMessage> list);
@@ -38,7 +40,4 @@ public interface DataManager {
     void deleteShortMessagesItem(int position);
     void clearShortMessages();
 
-    void setMessageAsRead(String id);
-
-    void setMessageAsUnread(String id);
 }

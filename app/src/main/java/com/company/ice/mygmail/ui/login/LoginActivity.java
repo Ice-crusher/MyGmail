@@ -191,7 +191,7 @@ public class LoginActivity extends BaseActivity implements LoginMvpView, EasyPer
     }
 
     /**
-     * Callback for when a permission is granted using the EasyPermissions
+     * OnClickListener for when a permission is granted using the EasyPermissions
      * library.
      *
      * @param requestCode The request code associated with the requested
@@ -204,7 +204,7 @@ public class LoginActivity extends BaseActivity implements LoginMvpView, EasyPer
     }
 
     /**
-     * Callback for when a permission is denied using the EasyPermissions
+     * OnClickListener for when a permission is denied using the EasyPermissions
      * library.
      *
      * @param requestCode The request code associated with the requested

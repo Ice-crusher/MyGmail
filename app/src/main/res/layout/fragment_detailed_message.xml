@@ -95,7 +95,7 @@
                     android:layout_marginEnd="8dp"
                     android:layout_marginStart="8dp"
                     android:text="to me"
-                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/detailed_star_checkBox"
                     app:layout_constraintLeft_toRightOf="@id/guidelineImage"
                     app:layout_constraintTop_toBottomOf="@id/detailed_textView_mailFrom" />
 
@@ -106,9 +106,21 @@
                     android:layout_marginEnd="8dp"
                     android:layout_marginStart="8dp"
                     android:text="20/07/2017"
-                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/detailed_star_checkBox"
                     app:layout_constraintLeft_toRightOf="@id/guidelineImage"
                     app:layout_constraintTop_toBottomOf="@+id/textView2" />
+
+                <CheckBox
+                    android:id="@+id/detailed_star_checkBox"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/star_checkbox_selector"
+                    android:button="@null"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/detailed_textView_mailFrom" />
+
 
             </android.support.constraint.ConstraintLayout>
 

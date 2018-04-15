@@ -17,6 +17,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -77,6 +79,8 @@ public class DetailedMessageFragment extends BaseFragment implements DetailedMes
     TextView mTextMailFrom;
     @BindView(R.id.detailed_imageView_avatar)
     ImageView mImageAvatar;
+    @BindView(R.id.detailed_star_checkBox)
+    CheckBox mStarCheckBox;
 
     @BindView(R.id.detailed_reply_button)
     Button mReplyButton;
@@ -179,7 +183,15 @@ public class DetailedMessageFragment extends BaseFragment implements DetailedMes
     protected void setUp(View view) {
 //        Log.d(TAG, "TAG IN FRAGMENT: " + mId);
         setActionBarTitle("");
+        mStarCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                mPresenter.onStarCheckBoxCheckedChanged(b);
+            }
+        });
+
         mPresenter.onViewPrepared(mId);
+
 
     }
 
@@ -198,6 +210,7 @@ public class DetailedMessageFragment extends BaseFragment implements DetailedMes
         mTextSubject.setText(fullMessage.getSubject());
         mTextDate.setText(fullMessage.getDate());
         mTextMailFrom.setText(fullMessage.getAuthor());
+        mStarCheckBox.setChecked(fullMessage.isStarred());
         mImageAvatar.setImageDrawable(CommonUtils.createDrawable(fullMessage.getAuthor()));
         // ATTACHMENTS
         List<Messages.Attachment> list = fullMessage.getAttachments();

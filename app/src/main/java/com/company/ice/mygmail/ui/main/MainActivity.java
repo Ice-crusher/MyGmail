@@ -49,7 +49,9 @@ import static com.company.ice.mygmail.utils.AppConstants.REQUEST_PERMISSION_GET_
 public class MainActivity extends BaseActivity
         implements
 //        NavigationView.OnNavigationItemSelectedListener,
-        EasyPermissions.PermissionCallbacks, MainMvpView, MessagesListFragment.ClickListener , DetailedMessageFragment.ClickResendButtonsListener{
+        EasyPermissions.PermissionCallbacks, MainMvpView,
+        MessagesListFragment.Callback,
+        DetailedMessageFragment.ClickResendButtonsListener{
 
     public static final String TAG = "MainActivity";
 
@@ -402,7 +404,7 @@ public class MainActivity extends BaseActivity
     }
 
     /**
-     * Callback for when a permission is granted using the EasyPermissions
+     * OnClickListener for when a permission is granted using the EasyPermissions
      * library.
      *
      * @param requestCode The request code associated with the requested
@@ -415,7 +417,7 @@ public class MainActivity extends BaseActivity
     }
 
     /**
-     * Callback for when a permission is denied using the EasyPermissions
+     * OnClickListener for when a permission is denied using the EasyPermissions
      * library.
      *
      * @param requestCode The request code associated with the requested
@@ -448,6 +450,29 @@ public class MainActivity extends BaseActivity
     @Override
     public void onClick(String id) {
         insertDetailedMessageFragment(id);
+    }
+
+
+    @Override
+    public void onFragmentViewCreate(String messageLabel) {
+        mNavigationView.setCheckedItem(getNavigationResIdItemByLabel(messageLabel));
+    }
+
+    private int getNavigationResIdItemByLabel(String label){
+        int resId;
+        if (label.equals(AppConstants.MESSAGE_LABELS.INBOX))
+            resId = R.id.nav_primary;
+        else if (label.equals(AppConstants.MESSAGE_LABELS.STARRED))
+            resId = R.id.nav_starred;
+        else if (label.equals(AppConstants.MESSAGE_LABELS.IMPORTANT))
+            resId = R.id.nav_important;
+        else if (label.equals(AppConstants.MESSAGE_LABELS.DRAFTS))
+            resId = R.id.nav_drafts;
+        else if (label.equals(AppConstants.MESSAGE_LABELS.SPAM))
+            resId = R.id.nav_spam;
+        else resId = R.id.nav_trash;
+
+        return resId;
     }
 
     @OnClick(R.id.fab)

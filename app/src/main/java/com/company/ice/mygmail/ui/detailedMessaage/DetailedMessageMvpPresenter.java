@@ -13,5 +13,8 @@ public interface DetailedMessageMvpPresenter<V extends DetailedMessageMvpView> e
     void onReplyClick();
     void onForwardClick();
     void onDeleteClick();
+
+    void onStarCheckBoxCheckedChanged(boolean isChecked);
+
     void onDownloadButtonClick(int position);
 }
