@@ -9,7 +9,6 @@ import com.company.ice.mygmail.ui.base.MvpView;
  */
 
 public interface MainMvpView extends MvpView {
-    void showResult(String text);
     void startSomeActivityForResult(Intent intent, int REQUEST_ACCOUNT_PICKER);
     void requestPermission();
     void showGooglePlayServicesAvailabilityErrorDialog(final int connectionStatusCode);
@@ -17,4 +16,9 @@ public interface MainMvpView extends MvpView {
     void closeNavigationDrawer();
     void lockDrawer();
     void unlockDrawer();
+    void insertMessageListFragment(String query);
+    void insertDetailedMessageFragment(String id);
+    void updateNavigationHeader(String name, String mailName);
+
+    void startSendFormActivity(Intent intent);
 }

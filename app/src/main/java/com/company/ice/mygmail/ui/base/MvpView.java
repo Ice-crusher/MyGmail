@@ -18,9 +18,11 @@ public interface MvpView {
 
     void hideLoading();
 
-    void openActivityOnTokenExpire();
-
     void onError(@StringRes int resId);
+
+    void showSnackBar(String message);
+
+    void setActionBarTitle(String title);
 
     void onError(String message);
 
@@ -31,4 +33,5 @@ public interface MvpView {
     boolean isNetworkConnected();
 
     void hideKeyboard();
+    void showKeyboard();
 }

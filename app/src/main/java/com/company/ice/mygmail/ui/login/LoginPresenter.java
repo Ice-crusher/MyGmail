@@ -33,7 +33,6 @@ public class LoginPresenter<V extends LoginMvpView> extends BasePresenter<V> imp
 
     private static String TAG = "LoginPresenter";
 
-    private static final String PREF_ACCOUNT_NAME = "accountName";
 
     @Inject
     @ApplicationContext
@@ -60,7 +59,7 @@ public class LoginPresenter<V extends LoginMvpView> extends BasePresenter<V> imp
         SharedPreferences settings =
                 appContext.getSharedPreferences(AppConstants.SHARED_PREFERENCE_TAG, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
-        editor.putString(PREF_ACCOUNT_NAME, null);
+        editor.putString(AppConstants.PREF_ACCOUNT_NAME, null);
         editor.apply();
         mCredential.setSelectedAccountName(null);
     }
@@ -95,11 +94,11 @@ public class LoginPresenter<V extends LoginMvpView> extends BasePresenter<V> imp
     private void chooseAccount() {
         if (EasyPermissions.hasPermissions(appContext, Manifest.permission.GET_ACCOUNTS)) {
             String accountName = appContext.getSharedPreferences(AppConstants.SHARED_PREFERENCE_TAG, Context.MODE_PRIVATE)
-                    .getString(PREF_ACCOUNT_NAME, null);
+                    .getString(AppConstants.PREF_ACCOUNT_NAME, null);
             if (accountName != null) {
                 mCredential.setSelectedAccountName(accountName);
 
-                Log.d(TAG,"SELECTED ACCOUNT NAME: " + mCredential.getSelectedAccountName().toString());
+                Log.d(TAG,"SELECTED ACCOUNT NAME: " + mCredential.getSelectedAccountName());
                 loadMainActivity();
             } else {
                 // Start a dialog from which the user can choose an account
@@ -147,7 +146,7 @@ public class LoginPresenter<V extends LoginMvpView> extends BasePresenter<V> imp
                         SharedPreferences settings =
                                 appContext.getSharedPreferences(AppConstants.SHARED_PREFERENCE_TAG, Context.MODE_PRIVATE);
                         SharedPreferences.Editor editor = settings.edit();
-                        editor.putString(PREF_ACCOUNT_NAME, accountName);
+                        editor.putString(AppConstants.PREF_ACCOUNT_NAME, accountName);
                         editor.apply();
                         mCredential.setSelectedAccountName(accountName);
                         loadMainActivity();
@@ -177,61 +176,5 @@ public class LoginPresenter<V extends LoginMvpView> extends BasePresenter<V> imp
             getMvpView().showGooglePlayServicesAvailabilityErrorDialog(connectionStatusCode);
         }
     }
-//    @Override
-//    public void onBackPressed() {
-//        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-//        if (drawer.isDrawerOpen(GravityCompat.START)) {
-//            drawer.closeDrawer(GravityCompat.START);
-//        } else {
-//            super.onBackPressed();
-//        }
-//    }
-//
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//        // Inflate the menu; this adds items to the action bar if it is present.
-//        getMenuInflater().inflate(R.menu.main, menu);
-//        return true;
-//    }
-//
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//        // Handle action bar item clicks here. The action bar will
-//        // automatically handle clicks on the Home/Up button, so long
-//        // as you specify a parent activity in AndroidManifest.xml.
-//        int id = item.getItemId();
-//
-//        //noinspection SimplifiableIfStatement
-//        if (id == R.id.action_settings) {
-//            return true;
-//        }
-//
-//        return super.onOptionsItemSelected(item);
-//    }
-//
-//    @SuppressWarnings("StatementWithEmptyBody")
-//    @Override
-//    public boolean onNavigationItemSelected(MenuItem item) {
-//        // Handle navigation view item clicks here.
-//        int id = item.getItemId();
-//
-//        if (id == R.id.nav_camera) {
-//            // Handle the camera action
-//        } else if (id == R.id.nav_gallery) {
-//
-//        } else if (id == R.id.nav_slideshow) {
-//
-//        } else if (id == R.id.nav_manage) {
-//
-//        } else if (id == R.id.nav_share) {
-//
-//        } else if (id == R.id.nav_send) {
-//
-//        }
-//
-//        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-//        drawer.closeDrawer(GravityCompat.START);
-//        return true;
-//    }
 
 }

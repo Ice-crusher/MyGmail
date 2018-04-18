@@ -3,8 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/action_settings"
+        android:id="@+id/action_log_out"
         android:orderInCategory="100"
+        android:icon="@drawable/ic_exit_to_app_white_24dp"
         android:title="LOG OUT"
         app:showAsAction="ifRoom"/>
 

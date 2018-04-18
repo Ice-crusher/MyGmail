@@ -20,7 +20,7 @@ import butterknife.Unbinder;
 public abstract class BaseFragment extends Fragment implements MvpView {
 
     private BaseActivity mActivity;
-    private Unbinder mUnbinder;
+    private Unbinder mUnBinder;
     private ProgressDialog mProgressDialog;
 
     @Override
@@ -48,12 +48,13 @@ public abstract class BaseFragment extends Fragment implements MvpView {
         if (context instanceof BaseActivity) {
             BaseActivity activity = (BaseActivity) context;
             this.mActivity = activity;
-            activity.onFragmentAttached();
+            activity.onFragmentAttached(this.getTag());
         }
     }
 
     @Override
     public void onDetach() {
+        mActivity.onFragmentDetached(this.getTag());
         mActivity = null;
         super.onDetach();
     }
@@ -69,6 +70,16 @@ public abstract class BaseFragment extends Fragment implements MvpView {
         if (mProgressDialog != null && mProgressDialog.isShowing()) {
             mProgressDialog.cancel();
         }
+    }
+
+    @Override
+    public void showSnackBar(String message) {
+        mActivity.showSnackBar(message);
+    }
+
+    @Override
+    public void setActionBarTitle(String title) {
+        mActivity.setActionBarTitle(title);
     }
 
     @Override
@@ -113,27 +124,33 @@ public abstract class BaseFragment extends Fragment implements MvpView {
             mActivity.hideKeyboard();
         }
     }
+    @Override
+    public void showKeyboard() {
+        if (mActivity != null) {
+            mActivity.showKeyboard();
+        }
+    }
 
     public BaseActivity getBaseActivity() {
         return mActivity;
     }
 
     public void setUnBinder(Unbinder unBinder) {
-        mUnbinder = unBinder;
+        mUnBinder = unBinder;
     }
 
     protected abstract void setUp(View view);
 
     @Override
     public void onDestroy() {
-        if (mUnbinder != null) {
-            mUnbinder.unbind();
+        if (mUnBinder != null) {
+            mUnBinder.unbind();
         }
         super.onDestroy();
     }
 
     public interface Callback {
-        void onFragmentAttached();
+        void onFragmentAttached(String tag);
 
         void onFragmentDetached(String tag);
     }

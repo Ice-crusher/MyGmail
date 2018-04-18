@@ -3,6 +3,7 @@ package com.company.ice.mygmail.ui.main;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 
+import com.company.ice.mygmail.data.network.model.Messages;
 import com.company.ice.mygmail.ui.base.MvpPresenter;
 
 /**
@@ -10,8 +11,10 @@ import com.company.ice.mygmail.ui.base.MvpPresenter;
  */
 
 public interface MainMvpPresenter<V extends MainMvpView> extends MvpPresenter<V> {
-    void onCallGoogleApi();
     void onActivityResultFromView(int requestCode, int resultCode, Intent data);
     void onNavMenuCreated();
+    void onNavMenuItemClick(String element);
+    void onFABClick();
+    void onClickResendButtons(Messages.FullMessage fullMessage);
 //    void onLogOutClick();
 }

@@ -51,9 +51,13 @@ public class LoginActivity extends BaseActivity implements LoginMvpView, EasyPer
         mPresenter.onAttach(LoginActivity.this);
     }
 
+    public static Intent getStartIntent(Context context){
+        Intent intent = new Intent(context, LoginActivity.class);
+        return intent;
+    }
+
     @OnClick(R.id.sign_in_button)
     void onClickSignInGoogleButton(View view) {
-//        showMessage("CLICK");
         mPresenter.onLogin();
     }
 
@@ -70,7 +74,7 @@ public class LoginActivity extends BaseActivity implements LoginMvpView, EasyPer
 
     @Override
     public void startMainActivity() {
-        startActivity(new Intent(this, MainActivity.class));
+        startActivity(MainActivity.getStartIntent(this));
         finish();
     }
 
@@ -187,7 +191,7 @@ public class LoginActivity extends BaseActivity implements LoginMvpView, EasyPer
     }
 
     /**
-     * Callback for when a permission is granted using the EasyPermissions
+     * OnClickListener for when a permission is granted using the EasyPermissions
      * library.
      *
      * @param requestCode The request code associated with the requested
@@ -200,7 +204,7 @@ public class LoginActivity extends BaseActivity implements LoginMvpView, EasyPer
     }
 
     /**
-     * Callback for when a permission is denied using the EasyPermissions
+     * OnClickListener for when a permission is denied using the EasyPermissions
      * library.
      *
      * @param requestCode The request code associated with the requested

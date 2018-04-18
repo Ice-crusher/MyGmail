@@ -4,7 +4,11 @@ import android.content.Context;
 import android.graphics.drawable.Animatable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -12,42 +16,26 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 
 import com.company.ice.mygmail.R;
-import com.company.ice.mygmail.data.DataManager;
+import com.company.ice.mygmail.data.network.model.Messages;
+import com.company.ice.mygmail.ui.about.AboutDialog;
 import com.company.ice.mygmail.ui.base.BaseActivity;
+import com.company.ice.mygmail.ui.detailedMessaage.DetailedMessageFragment;
 import com.company.ice.mygmail.ui.login.LoginActivity;
+import com.company.ice.mygmail.ui.messagesList.MessagesListFragment;
 import com.company.ice.mygmail.utils.AppConstants;
-import com.company.ice.mygmail.utils.CommonUtils;
-import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.api.client.extensions.android.http.AndroidHttp;
-import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
-import com.google.api.client.googleapis.extensions.android.gms.auth.GooglePlayServicesAvailabilityIOException;
-import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
-
-import com.google.api.client.http.HttpTransport;
-import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.jackson2.JacksonFactory;
-
-import com.google.api.services.gmail.GmailScopes;
-
-import com.google.api.services.gmail.model.*;
 
 import android.Manifest;
 import android.app.Dialog;
-import android.app.ProgressDialog;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.support.annotation.NonNull;
-import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -55,28 +43,21 @@ import javax.inject.Inject;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
-import static com.company.ice.mygmail.utils.AppConstants.PREF_ACCOUNT_NAME;
-import static com.company.ice.mygmail.utils.AppConstants.REQUEST_ACCOUNT_PICKER;
 import static com.company.ice.mygmail.utils.AppConstants.REQUEST_PERMISSION_GET_ACCOUNTS;
 
 public class MainActivity extends BaseActivity
         implements
 //        NavigationView.OnNavigationItemSelectedListener,
-        EasyPermissions.PermissionCallbacks, MainMvpView {
+        EasyPermissions.PermissionCallbacks, MainMvpView,
+        MessagesListFragment.Callback,
+        DetailedMessageFragment.ClickResendButtonsListener{
 
-    public static final String TAG = "Main1";
+    public static final String TAG = "MainActivity";
 
     @Inject
     MainMvpPresenter<MainMvpView> mPresenter;
-
-    @BindView(R.id.call_api_btn)
-    Button mCallApiButton;
-
-    @BindView(R.id.result_api_tv)
-    TextView mOutputText;
 
     @BindView(R.id.toolbar)
     Toolbar mToolbar;
@@ -87,7 +68,17 @@ public class MainActivity extends BaseActivity
     @BindView(R.id.navigation_view)
     NavigationView mNavigationView;
 
+    @BindView(R.id.fab)
+    FloatingActionButton mFloatingActionButton;
+
+    TextView mNameTextView;
+    TextView mEmailTextView;
+    ImageView mProfileImageView;
+
     private ActionBarDrawerToggle mDrawerToggle;
+
+
+    private boolean mToolBarNavigationListenerIsRegistered = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,24 +88,131 @@ public class MainActivity extends BaseActivity
 
         setContentView(R.layout.activity_main);
         setUnBinder(ButterKnife.bind(this));
-
-//        mCallApiButton.setOnClickListener(view -> {
-//            mCallApiButton.setEnabled(false);
-//            mOutputText.setText("");
-//            mPresenter.onCallGoogleApi();
-//            mCallApiButton.setEnabled(true);
-//        });
-
         setUp();
+
+        if(savedInstanceState != null)
+            resolveUpButtonWithFragmentStack();
+
         mPresenter.onAttach(MainActivity.this);
     }
+    @Override
+    public void onBackPressed() {
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            int backStackCount = getSupportFragmentManager().getBackStackEntryCount();
 
-    @OnClick(R.id.call_api_btn)
-    void onClickCallApiButton(View view){
-        mCallApiButton.setEnabled(false);
-        mOutputText.setText("");
-        mPresenter.onCallGoogleApi();
-        mCallApiButton.setEnabled(true);
+            if (backStackCount >= 1) {
+                getSupportFragmentManager().popBackStack();
+                // Change to hamburger icon if at bottom of stack
+                if(backStackCount == 1){
+                    showUpButton(false);
+                }
+            } else {
+                super.onBackPressed();
+            }
+        }
+    }
+
+    private void showUpButton(boolean show) {
+        // To keep states of ActionBar and ActionBarDrawerToggle synchronized,
+        // when you enable on one, you disable on the other.
+        // And as you may notice, the order for this operation is disable first, then enable - VERY VERY IMPORTANT.
+        if (show) {
+            // Remove hamburger
+            mDrawerToggle.setDrawerIndicatorEnabled(false);
+            // Show back button
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            // when DrawerToggle is disabled i.e. setDrawerIndicatorEnabled(false), navigation icon
+            // clicks are disabled i.e. the UP button will not work.
+            // We need to add a listener, as in below, so DrawerToggle will forward
+            // click events to this listener.
+            if (!mToolBarNavigationListenerIsRegistered) {
+                mDrawerToggle.setToolbarNavigationClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        onBackPressed();
+                    }
+                });
+
+                mToolBarNavigationListenerIsRegistered = true;
+            }
+
+        } else {
+            // Remove back button
+            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+            // Show hamburger
+            mDrawerToggle.setDrawerIndicatorEnabled(true);
+            // Remove the/any drawer toggle listener
+            mDrawerToggle.setToolbarNavigationClickListener(null);
+            mToolBarNavigationListenerIsRegistered = false;
+        }
+    }
+
+    private void resolveUpButtonWithFragmentStack() {
+        showUpButton(getSupportFragmentManager().getBackStackEntryCount() > 0);
+    }
+
+    public static Intent getStartIntent(Context context){
+        Intent intent = new Intent(context, MainActivity.class);
+        return intent;
+    }
+
+    @Override
+    public void insertMessageListFragment(String query) {
+
+        Fragment fragment = null;
+        FragmentManager supportFragmentManager = getSupportFragmentManager();
+        fragment = supportFragmentManager.findFragmentById(R.id.messages_frame_layout);
+
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        if (fragment != null) {
+            fragmentTransaction.addToBackStack(null);
+        }
+        fragment = MessagesListFragment.newInstance(query);
+        fragmentTransaction.setCustomAnimations(R.anim.enter, R.anim.exit);
+        fragmentTransaction.replace(R.id.messages_frame_layout, fragment, MessagesListFragment.TAG);
+        fragmentTransaction.setTransition(android.app.FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+        fragmentTransaction.commit();
+    }
+
+    @Override
+    public void insertDetailedMessageFragment(String id) {
+
+        showUpButton(true);
+        DetailedMessageFragment fragment = DetailedMessageFragment.newInstance(id, "some");
+        getSupportFragmentManager().beginTransaction()
+                .setCustomAnimations(R.anim.enter, R.anim.exit, R.anim.pop_enter, R.anim.pop_exit)
+                .replace(R.id.messages_frame_layout, fragment, DetailedMessageFragment.TAG)
+                .addToBackStack(null)
+                .commit();
+        mFloatingActionButton.hide();
+    }
+
+
+    @Override
+    public void onFragmentAttached(String tag) {
+        Log.d(TAG, "FRAGMENT ATTACHED TAG: " + tag);
+        if(mFloatingActionButton != null) { // If its recreate activity (rotate display)
+            if (tag.equals(MessagesListFragment.TAG))
+                mFloatingActionButton.show();
+            if (tag.equals(DetailedMessageFragment.TAG))
+                mFloatingActionButton.hide();
+        }
+        super.onFragmentAttached(tag);
+    }
+
+    @Override
+    public void onFragmentDetached(String tag) {
+        Log.d(TAG, "FRAGMENT DETACHED TAG: " + tag);
+        if (mFloatingActionButton != null & tag.equals(DetailedMessageFragment.TAG))
+            mFloatingActionButton.show();
+        if (tag.equals(AboutDialog.TAG)){
+            unlockDrawer();
+        }
+
+        super.onFragmentDetached(tag);
     }
 
     @Override
@@ -150,34 +248,64 @@ public class MainActivity extends BaseActivity
     }
 
     void setupNavMenu(){
-//        View headerLayout = mNavigationView.getHeaderView(0);
-//        mProfileImageView = (RoundedImageView) headerLayout.findViewById(R.id.iv_profile_pic);
-//        mNameTextView = (TextView) headerLayout.findViewById(R.id.tv_name);
-//        mEmailTextView = (TextView) headerLayout.findViewById(R.id.tv_email);
-//
-//        mNavigationView.setNavigationItemSelectedListener(
-//                new NavigationView.OnNavigationItemSelectedListener() {
-//                    @Override
-//                    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-//                        mDrawer.closeDrawer(GravityCompat.START);
-//                        switch (item.getItemId()) {
-//                            case R.id.nav_item_about:
-//                                mPresenter.onDrawerOptionAboutClick();
-//                                return true;
-//                            case R.id.nav_item_rate_us:
-//                                mPresenter.onDrawerRateUsClick();
-//                                return true;
-//                            case R.id.nav_item_feed:
-//                                mPresenter.onDrawerMyFeedClick();
-//                                return true;
-//                            case R.id.nav_item_logout:
-//                                mPresenter.onDrawerOptionLogoutClick();
-//                                return true;
-//                            default:
-//                                return false;
-//                        }
-//                    }
-//                });
+        View headerLayout = mNavigationView.getHeaderView(0);
+        mProfileImageView = (ImageView) headerLayout.findViewById(R.id.nav_avatar);
+//        mNameTextView = (TextView) headerLayout.findViewById(R.id.nav_name);
+        mEmailTextView = (TextView) headerLayout.findViewById(R.id.nav_mail_name);
+
+        mNavigationView.setCheckedItem(R.id.nav_primary);
+        mNavigationView.setNavigationItemSelectedListener(
+                new NavigationView.OnNavigationItemSelectedListener() {
+                    @Override
+                    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                        item.setChecked(true);
+                        mDrawer.closeDrawer(GravityCompat.START);
+                        switch (item.getItemId()) {
+                            case R.id.nav_primary:
+                                mPresenter.onNavMenuItemClick(AppConstants.MESSAGE_LABELS.INBOX);
+                                return true;
+                            case R.id.nav_starred:
+                                mPresenter.onNavMenuItemClick(AppConstants.MESSAGE_LABELS.STARRED);
+                                return true;
+                            case R.id.nav_important:
+                                mPresenter.onNavMenuItemClick(AppConstants.MESSAGE_LABELS.IMPORTANT);
+                                return true;
+                            case R.id.nav_sent:
+                                mPresenter.onNavMenuItemClick(AppConstants.MESSAGE_LABELS.SENT);
+                                return true;
+                            case R.id.nav_drafts:
+                                mPresenter.onNavMenuItemClick(AppConstants.MESSAGE_LABELS.DRAFTS);
+                                return true;
+                            case R.id.nav_spam:
+                                mPresenter.onNavMenuItemClick(AppConstants.MESSAGE_LABELS.SPAM);
+                                return true;
+                            case R.id.nav_trash:
+                                mPresenter.onNavMenuItemClick(AppConstants.MESSAGE_LABELS.TRASH);
+                                return true;
+                            case R.id.nav_about:
+                                showAboutFragment();
+                                return true;
+                            default:
+                                return false;
+                        }
+                    }
+                });
+    }
+
+    public void showAboutFragment() {
+        lockDrawer();
+        AboutDialog.newInstance().show(getSupportFragmentManager(), AboutDialog.TAG);
+    }
+
+    @Override
+    public void updateNavigationHeader(String name, String mailName) {
+//        mNameTextView.setText(name);
+        mEmailTextView.setText(mailName);
+    }
+
+    @Override
+    public void startSendFormActivity(Intent intent) {
+        startActivity(intent);
     }
 
     @Override
@@ -202,7 +330,7 @@ public class MainActivity extends BaseActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu, menu);
-        return true;
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
@@ -212,9 +340,14 @@ public class MainActivity extends BaseActivity
             ((Animatable) drawable).start();
         }
         switch (item.getItemId()) {
-            case R.id.action_settings:
+            case R.id.action_log_out:
 //                mPresenter.onLogOutClick();
                 startLoginActivity();
+                return true;
+
+            case android.R.id.home:
+                // Home/Up logic handled by onBackPressed implementation
+                onBackPressed();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -223,13 +356,8 @@ public class MainActivity extends BaseActivity
 
     @Override
     public void startLoginActivity() {
-        startActivity(new Intent(this, LoginActivity.class));
+        startActivity(LoginActivity.getStartIntent(this));
         finish();
-    }
-
-    @Override
-    public void showResult(String text) {
-        mOutputText.setText(text);
     }
 
     @Override
@@ -285,7 +413,7 @@ public class MainActivity extends BaseActivity
     }
 
     /**
-     * Callback for when a permission is granted using the EasyPermissions
+     * OnClickListener for when a permission is granted using the EasyPermissions
      * library.
      *
      * @param requestCode The request code associated with the requested
@@ -298,7 +426,7 @@ public class MainActivity extends BaseActivity
     }
 
     /**
-     * Callback for when a permission is denied using the EasyPermissions
+     * OnClickListener for when a permission is denied using the EasyPermissions
      * library.
      *
      * @param requestCode The request code associated with the requested
@@ -309,7 +437,6 @@ public class MainActivity extends BaseActivity
     public void onPermissionsDenied(int requestCode, List<String> list) {
         // Do nothing.
     }
-
 
     /**
      * Display an error dialog showing that Google Play Services is missing
@@ -327,5 +454,43 @@ public class MainActivity extends BaseActivity
                 connectionStatusCode,
                 AppConstants.REQUEST_GOOGLE_PLAY_SERVICES);
         dialog.show();
+    }
+
+    @Override
+    public void onClick(String id) {
+        insertDetailedMessageFragment(id);
+    }
+
+
+    @Override
+    public void onFragmentViewCreate(String messageLabel) {
+        mNavigationView.setCheckedItem(getNavigationResIdItemByLabel(messageLabel));
+    }
+
+    private int getNavigationResIdItemByLabel(String label){
+        int resId;
+        if (label.equals(AppConstants.MESSAGE_LABELS.INBOX))
+            resId = R.id.nav_primary;
+        else if (label.equals(AppConstants.MESSAGE_LABELS.STARRED))
+            resId = R.id.nav_starred;
+        else if (label.equals(AppConstants.MESSAGE_LABELS.IMPORTANT))
+            resId = R.id.nav_important;
+        else if (label.equals(AppConstants.MESSAGE_LABELS.DRAFTS))
+            resId = R.id.nav_drafts;
+        else if (label.equals(AppConstants.MESSAGE_LABELS.SPAM))
+            resId = R.id.nav_spam;
+        else resId = R.id.nav_trash;
+
+        return resId;
+    }
+
+    @OnClick(R.id.fab)
+    public void OnFabClick(View view){
+        mPresenter.onFABClick();
+    }
+
+    @Override
+    public void onClickResendButtons(Messages.FullMessage fullMessage) {
+        mPresenter.onClickResendButtons(fullMessage);
     }
 }

@@ -1,53 +1,29 @@
 package com.company.ice.mygmail.ui.main;
 
-import android.Manifest;
 import android.accounts.AccountManager;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
-import android.text.TextUtils;
 import android.util.Log;
 
 import com.company.ice.mygmail.data.DataManager;
+import com.company.ice.mygmail.data.network.model.Messages;
+import com.company.ice.mygmail.di.ActivityContext;
 import com.company.ice.mygmail.di.ApplicationContext;
 import com.company.ice.mygmail.ui.base.BasePresenter;
+import com.company.ice.mygmail.ui.sendingMessage.SendingMessageActivity;
 import com.company.ice.mygmail.utils.AppConstants;
 import com.company.ice.mygmail.utils.CommonUtils;
-import com.company.ice.mygmail.utils.NetworkUtils;
 import com.company.ice.mygmail.utils.rx.SchedulerProvider;
-import com.google.android.gms.auth.GoogleAuthException;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.api.client.extensions.android.http.AndroidHttp;
-import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
-import com.google.api.client.googleapis.extensions.android.gms.auth.GooglePlayServicesAvailabilityIOException;
-import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
-import com.google.api.client.http.HttpTransport;
-import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.client.util.ExponentialBackOff;
-import com.google.api.services.gmail.Gmail;
-import com.google.api.services.gmail.GmailScopes;
-import com.google.api.services.gmail.model.ListMessagesResponse;
-import com.google.api.services.gmail.model.Message;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
-import javax.annotation.Nonnull;
 import javax.inject.Inject;
 
-import io.reactivex.Observable;
-import io.reactivex.Observer;
 import io.reactivex.disposables.CompositeDisposable;
-import pub.devrel.easypermissions.AfterPermissionGranted;
-import pub.devrel.easypermissions.EasyPermissions;
 
 /**
  * Created by Ice on 19.11.2017.
@@ -57,10 +33,14 @@ public class MainPresenter<V extends MainMvpView> extends BasePresenter<V>
         implements MainMvpPresenter<V> {
 
     private static final String TAG = "MainPresenter";
-    private static final String PREF_ACCOUNT_NAME = "accountName";
+
+
 
     @Inject
     @ApplicationContext Context appContext;
+
+    @Inject
+    @ActivityContext Context mActivity;
 
     @Inject
     GoogleAccountCredential mCredential;
@@ -76,129 +56,58 @@ public class MainPresenter<V extends MainMvpView> extends BasePresenter<V>
     }
 
     @Override
-    public void onCallGoogleApi() {
-        getResultsFromApi();
+    public void onNavMenuItemClick(String element){
+        getMvpView().insertMessageListFragment(element);
+    }
+
+    @Override
+    public void onFABClick() {
+        getMvpView().startSendFormActivity(SendingMessageActivity.getStartIntent(mActivity));
+    }
+
+    @Override
+    public void onClickResendButtons(Messages.FullMessage fullMessage){
+//        List<Messages.Attachment> temp = new ArrayList<>(fullMessage.getAttachments());
+        getMvpView().startSendFormActivity(SendingMessageActivity.getStartIntent(mActivity,
+                fullMessage.getAuthorEmail(),
+                fullMessage.getSubject(),
+                fullMessage.getText(),
+                (ArrayList<Messages.Attachment>)fullMessage.getAttachments()));
     }
 
     @Override
     public void onAttach(V mvpView) {
         super.onAttach(mvpView);
-        // Initialize credentials and service object.
-//        Log.d(TAG,"ALL ACCOUNT: " +  mCredential.getAllAccounts().toString());
-////        Log.d(TAG,"SELECTED ACCOUNT: " + mCredential.getSelectedAccount().toString());
-//        Log.d(TAG,"SELECTED ACCOUNT NAME: " + mCredential.getSelectedAccountName().toString());
-//        try {
-//            Log.d(TAG,"TOKEN: " + mCredential.getToken());
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        } catch (GoogleAuthException e) {
-//            e.printStackTrace();
-//        }
-//
-//        Log.d(TAG,"SCOPES: " + mCredential.getScope().toString());
-    }
-
-    /**
-     * Attempt to call the API, after verifying that all the preconditions are
-     * satisfied. The preconditions are: Google Play Services installed, an
-     * account was selected and the device currently has online access. If any
-     * of the preconditions are not satisfied, the app will prompt the user as
-     * appropriate.
-     */
-    private void getResultsFromApi() {
         if (!CommonUtils.isGooglePlayServicesAvailable(appContext)) {
-//            acquireGooglePlayServices();
             getMvpView().startLoginActivity();
-        } else if (mCredential.getSelectedAccountName() == null) {
-//            chooseAccount();
-            getMvpView().startLoginActivity();
-        } else if (!NetworkUtils.isNetworkConnected(appContext)) {
-            getMvpView().showResult("No network connection available");
-
-        } else {
-            getMvpView().showResult("");
-            getMvpView().showLoading();
-            getDataManager().getShortMessageDescription(mCredential)
-                    .subscribeOn(getSchedulerProvider().io())
-                    .observeOn(getSchedulerProvider().ui())
-                    .subscribe(list -> { // SUCCESS
-                        getMvpView().hideLoading();
-                        if (list == null || list.size() == 0) {
-                            getMvpView().showResult("No results returned.");
-                        } else {
-                            list.add(0, "Data retrieved using the Gmail API:");
-                            getMvpView().showResult(TextUtils.join("\n\n", list));
-                        }
-                    }, error -> { // ERROR
-                        getMvpView().hideLoading();
-                        if (error != null) {
-                            if (error instanceof GooglePlayServicesAvailabilityIOException) {
-                                getMvpView().showGooglePlayServicesAvailabilityErrorDialog(
-                                        ((GooglePlayServicesAvailabilityIOException) error)
-                                                .getConnectionStatusCode());
-                            } else if (error instanceof UserRecoverableAuthIOException) {
-                                getMvpView().startSomeActivityForResult(
-                                        ((UserRecoverableAuthIOException) error).getIntent(),
-                                        AppConstants.REQUEST_AUTHORIZATION);
-                            } else {
-                                Log.e(TAG, error.toString());
-                                getMvpView().showResult("The following error occurred:\n"
-                                        + error.toString());
-                            }
-                        } else {
-                            getMvpView().showResult("Request cancelled.");
-                        }
-                    });
+            return;
         }
-    }
-// /
-//    @Override
-//    public void onLogOutClick() {
-//        SharedPreferences settings =
-//                appContext.getSharedPreferences(AppConstants.SHARED_PREFERENCE_TAG, Context.MODE_PRIVATE);
-//        SharedPreferences.Editor editor = settings.edit();
-//        editor.putString(PREF_ACCOUNT_NAME, null);
-//        editor.apply();
-//        mCredential.setSelectedAccountName(null);
-//
-////        getMvpView().startSomeActivityForResult(mCredential.newChooseAccountIntent(),
-////                AppConstants.REQUEST_ACCOUNT_PICKER);
-////        chooseAccount();
-//    }
 
-//    /**
-//     * Attempts to set the account used with the API credentials. If an account
-//     * name was previously saved it will use that one; otherwise an account
-//     * picker dialog will be shown to the user. Note that the setting the
-//     * account to use with the credentials object requires the app to have the
-//     * GET_ACCOUNTS permission, which is requested here if it is not already
-//     * present. The AfterPermissionGranted annotation indicates that this
-//     * function will be rerun automatically whenever the GET_ACCOUNTS permission
-//     * is granted.
-//     */
-//    @AfterPermissionGranted(AppConstants.REQUEST_PERMISSION_GET_ACCOUNTS)
-//    private void chooseAccount() {
-//        if (EasyPermissions.hasPermissions(appContext, Manifest.permission.GET_ACCOUNTS)) {
-//            String accountName = appContext.getSharedPreferences(AppConstants.SHARED_PREFERENCE_TAG, Context.MODE_PRIVATE)
-//                    .getString(PREF_ACCOUNT_NAME, null);
-//            if (accountName != null) {
-//                mCredential.setSelectedAccountName(accountName);
-//
-//                Log.d(TAG,"SELECTED ACCOUNT NAME: " + mCredential.getSelectedAccountName().toString());
-//                getResultsFromApi();
-//            } else {
-//                // Start a dialog from which the user can choose an account
-//                getMvpView().startSomeActivityForResult(mCredential.newChooseAccountIntent(),
-//                        AppConstants.REQUEST_ACCOUNT_PICKER);
-////                    startActivityForResult(
-////                        mCredential.newChooseAccountIntent(),
-////                        REQUEST_ACCOUNT_PICKER);
-//            }
-//        } else {
-//            // Request the GET_ACCOUNTS permission via a user dialog
-//            getMvpView().requestPermission();
-//        }
-//    }
+
+        String accountName = appContext.getSharedPreferences(AppConstants.SHARED_PREFERENCE_TAG, Context.MODE_PRIVATE)
+                .getString(AppConstants.PREF_ACCOUNT_NAME, null);
+        mCredential.setSelectedAccountName(accountName);
+        Log.d(TAG, "mCredential " + mCredential.toString());
+        Log.d(TAG, "SELECTED ACCOUNT: " + mCredential.getSelectedAccountName());
+        if (mCredential.getSelectedAccountName() == null) {
+//            chooseAccount();
+            getDataManager().setUserAsLoggedOut();
+            getMvpView().startLoginActivity();
+            return;
+        }
+        if (mCredential != null){
+            getDataManager().setCredential(mCredential);
+        } else {
+            Log.e(TAG, "CREDENTIAL IS NULL, CAN'T SET HIM IN DATA_MANAGER");
+        }
+
+        // UPDATE NAV MENU
+        getMvpView().updateNavigationHeader("Name",
+                mCredential.getSelectedAccountName());
+
+        getMvpView().insertMessageListFragment(AppConstants.MESSAGE_LABELS.INBOX);
+//        getMvpView().insertDetailedMessageFragment("1615fea34980eeda");
+    }
 
     /**
      * Called when an activity launched here (specifically, AccountPicker
@@ -214,11 +123,11 @@ public class MainPresenter<V extends MainMvpView> extends BasePresenter<V>
         switch(requestCode) {
             case AppConstants.REQUEST_GOOGLE_PLAY_SERVICES:
                 if (resultCode != Activity.RESULT_OK) {
-                    getMvpView().showResult(
+                    getMvpView().showMessage(
                             "This app requires Google Play Services. Please install " +
                                     "Google Play Services on your device and relaunch this app.");
                 } else {
-                    getResultsFromApi();
+                  //  getResultsFromApi();
                 }
                 break;
             case AppConstants.REQUEST_ACCOUNT_PICKER:
@@ -232,10 +141,10 @@ public class MainPresenter<V extends MainMvpView> extends BasePresenter<V>
                         SharedPreferences settings =
                                 appContext.getSharedPreferences(AppConstants.SHARED_PREFERENCE_TAG, Context.MODE_PRIVATE);
                         SharedPreferences.Editor editor = settings.edit();
-                        editor.putString(PREF_ACCOUNT_NAME, accountName);
+                        editor.putString(AppConstants.PREF_ACCOUNT_NAME, accountName);
                         editor.apply();
                         mCredential.setSelectedAccountName(accountName);
-                        getResultsFromApi();
+                        getDataManager().setCredential(mCredential);
                     }
                 } else {
                     Log.d(TAG, "RESULT CODE: " + resultCode);
@@ -243,80 +152,11 @@ public class MainPresenter<V extends MainMvpView> extends BasePresenter<V>
                 break;
             case AppConstants.REQUEST_AUTHORIZATION:
                 if (resultCode == Activity.RESULT_OK) {
-                    getResultsFromApi();
+                 //   getResultsFromApi();
                 }
                 break;
         }
     }
 
-    /**
-     * Attempt to resolve a missing, out-of-date, invalid or disabled Google
-     * Play Services installation via a user dialog, if possible.
-     */
-    private void acquireGooglePlayServices() {
-        GoogleApiAvailability apiAvailability =
-                GoogleApiAvailability.getInstance();
-        final int connectionStatusCode =
-                apiAvailability.isGooglePlayServicesAvailable(appContext);
-        if (apiAvailability.isUserResolvableError(connectionStatusCode)) {
-            getMvpView().showGooglePlayServicesAvailabilityErrorDialog(connectionStatusCode);
-        }
-    }
-//    @Override
-//    public void onBackPressed() {
-//        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-//        if (drawer.isDrawerOpen(GravityCompat.START)) {
-//            drawer.closeDrawer(GravityCompat.START);
-//        } else {
-//            super.onBackPressed();
-//        }
-//    }
-//
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//        // Inflate the menu; this adds items to the action bar if it is present.
-//        getMenuInflater().inflate(R.menu.main, menu);
-//        return true;
-//    }
-//
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//        // Handle action bar item clicks here. The action bar will
-//        // automatically handle clicks on the Home/Up button, so long
-//        // as you specify a parent activity in AndroidManifest.xml.
-//        int id = item.getItemId();
-//
-//        //noinspection SimplifiableIfStatement
-//        if (id == R.id.action_settings) {
-//            return true;
-//        }
-//
-//        return super.onOptionsItemSelected(item);
-//    }
-//
-//    @SuppressWarnings("StatementWithEmptyBody")
-//    @Override
-//    public boolean onNavigationItemSelected(MenuItem item) {
-//        // Handle navigation view item clicks here.
-//        int id = item.getItemId();
-//
-//        if (id == R.id.nav_camera) {
-//            // Handle the camera action
-//        } else if (id == R.id.nav_gallery) {
-//
-//        } else if (id == R.id.nav_slideshow) {
-//
-//        } else if (id == R.id.nav_manage) {
-//
-//        } else if (id == R.id.nav_share) {
-//
-//        } else if (id == R.id.nav_send) {
-//
-//        }
-//
-//        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-//        drawer.closeDrawer(GravityCompat.START);
-//        return true;
-//    }
 }
 

@@ -25,8 +25,31 @@ public final class AppConstants {
     public static final int REQUEST_AUTHORIZATION = 1001;
     public static final int REQUEST_GOOGLE_PLAY_SERVICES = 1002;
     public static final int REQUEST_PERMISSION_GET_ACCOUNTS = 1003;
+    public static final int REQUEST_PERMISSION_EXTERNAL_STORAGE = 1004;
+
+    public final static class MIME_TYPE {
+        public static final String TEXT_PLAIN = "text/plain";
+        public static final String TEXT_HTML = "text/html";
+        public static final String MULTIPAR_RELATED = "multipart/related";
+        public static final String MULTIPAR_MIXED = "multipart/mixed";
+        public static final String MULTIPAR_ALTERNATIVE = "multipart/alternative";
+    }
+
+    public static final int READ_REQUEST_CODE = 42;
+
     public static final String SHARED_PREFERENCE_TAG = "MyGmail";
     public static final String PREF_ACCOUNT_NAME = "accountName";
+
+    public final static class MESSAGE_LABELS {
+        public static final String INBOX = "INBOX";
+        public static final String STARRED = "STARRED";
+        public static final  String IMPORTANT = "IMPORTANT";
+        public static final  String SENT = "SENT";
+        public static final  String DRAFTS = "DRAFTS";
+        public static final  String SPAM = "SPAM";
+        public static final  String TRASH = "TRASH";
+        public static final  String UNREAD = "UNREAD";
+    }
 
 
 //    public static final String DB_NAME = "mindorks_mvp.db";

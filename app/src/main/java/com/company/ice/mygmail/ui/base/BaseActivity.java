@@ -78,7 +78,8 @@ public abstract class BaseActivity extends AppCompatActivity implements MvpView,
         }
     }
 
-    private void showSnackBar(String message) {
+    @Override
+    public void showSnackBar(String message) {
         Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content),
                 message, Snackbar.LENGTH_SHORT);
         View sbView = snackbar.getView();
@@ -86,6 +87,11 @@ public abstract class BaseActivity extends AppCompatActivity implements MvpView,
                 .findViewById(android.support.design.R.id.snackbar_text);
         textView.setTextColor(ContextCompat.getColor(this, R.color.white));
         snackbar.show();
+    }
+
+    @Override
+    public void setActionBarTitle(String title){
+        getSupportActionBar().setTitle(title);
     }
 
 
@@ -123,7 +129,7 @@ public abstract class BaseActivity extends AppCompatActivity implements MvpView,
     }
 
     @Override
-    public void onFragmentAttached() {
+    public void onFragmentAttached(String tag) {
 
     }
 
@@ -143,10 +149,21 @@ public abstract class BaseActivity extends AppCompatActivity implements MvpView,
     }
 
     @Override
-    public void openActivityOnTokenExpire() {
-//        startActivity(LoginActivity.getStartIntent(this));
-        finish();
+    public void showKeyboard() {
+        View view = this.getCurrentFocus();
+
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager)
+                    getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT);
+        }
     }
+
+//    @Override
+//    public void openActivityOnTokenExpire() {
+////        startActivity(LoginActivity.getStartIntent(this));
+//        finish();
+//    }
 
     public void setUnBinder(Unbinder unBinder) {
         mUnBinder = unBinder;

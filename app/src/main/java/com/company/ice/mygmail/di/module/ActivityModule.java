@@ -19,16 +19,28 @@ import android.content.Context;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 
+import com.company.ice.mygmail.data.network.model.Messages;
 import com.company.ice.mygmail.di.ActivityContext;
 import com.company.ice.mygmail.di.PerActivity;
+import com.company.ice.mygmail.ui.detailedMessaage.DetailedMessageMvpPresenter;
+import com.company.ice.mygmail.ui.detailedMessaage.DetailedMessageMvpView;
+import com.company.ice.mygmail.ui.detailedMessaage.DetailedMessagePresenter;
 import com.company.ice.mygmail.ui.login.LoginMvpPresenter;
 import com.company.ice.mygmail.ui.login.LoginMvpView;
 import com.company.ice.mygmail.ui.login.LoginPresenter;
 import com.company.ice.mygmail.ui.main.MainMvpPresenter;
 import com.company.ice.mygmail.ui.main.MainMvpView;
 import com.company.ice.mygmail.ui.main.MainPresenter;
+import com.company.ice.mygmail.ui.messagesList.MessagesListAdapter;
+import com.company.ice.mygmail.ui.messagesList.MessagesListMvpPresenter;
+import com.company.ice.mygmail.ui.messagesList.MessagesListMvpView;
+import com.company.ice.mygmail.ui.messagesList.MessagesListPresenter;
+import com.company.ice.mygmail.ui.sendingMessage.SendingMessageMvpPresenter;
+import com.company.ice.mygmail.ui.sendingMessage.SendingMessageMvpView;
 import com.company.ice.mygmail.utils.rx.AppSchedulerProvider;
 import com.company.ice.mygmail.utils.rx.SchedulerProvider;
+
+import java.util.ArrayList;
 
 import dagger.Module;
 import dagger.Provides;
@@ -70,6 +82,32 @@ public class ActivityModule {
     LoginMvpPresenter<LoginMvpView> provideLoginPresenter(
             LoginPresenter<LoginMvpView> presenter) {
         return presenter;
+    }
+
+    @Provides
+    @PerActivity
+    MessagesListMvpPresenter<MessagesListMvpView> provideMessagesListPresenter(
+            MessagesListPresenter<MessagesListMvpView> presenter) {
+        return presenter;
+    }
+
+    @Provides
+    @PerActivity
+    DetailedMessageMvpPresenter<DetailedMessageMvpView> provideDetailedMessageMvpPresenter(
+            DetailedMessagePresenter<DetailedMessageMvpView> presenter) {
+        return presenter;
+    }
+
+    @Provides
+    @PerActivity
+    SendingMessageMvpPresenter<SendingMessageMvpView> provideSendingMessageMvpPresenter(
+            SendingMessageMvpPresenter<SendingMessageMvpView> presenter) {
+        return presenter;
+    }
+
+    @Provides
+    MessagesListAdapter provideMessagesListAdapter() {
+        return new MessagesListAdapter(new ArrayList<Messages.ShortMessage>());
     }
 
     @Provides
