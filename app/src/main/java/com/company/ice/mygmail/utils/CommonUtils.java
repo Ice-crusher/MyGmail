@@ -195,7 +195,4 @@ public final class CommonUtils {
         params.height = totalHeight + (listView.getDividerHeight() * (listAdapter.getCount() - 1));
         listView.setLayoutParams(params);
     }
-
-
-
 }

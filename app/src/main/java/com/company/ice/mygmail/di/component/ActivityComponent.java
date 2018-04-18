@@ -17,6 +17,7 @@ package com.company.ice.mygmail.di.component;
 
 import com.company.ice.mygmail.di.PerActivity;
 import com.company.ice.mygmail.di.module.ActivityModule;
+import com.company.ice.mygmail.ui.about.AboutDialog;
 import com.company.ice.mygmail.ui.detailedMessaage.DetailedMessageFragment;
 import com.company.ice.mygmail.ui.login.LoginActivity;
 import com.company.ice.mygmail.ui.main.MainActivity;
@@ -38,4 +39,5 @@ public interface ActivityComponent {
     void inject(SendingMessageActivity activity);
     void inject(MessagesListFragment fragment);
     void inject(DetailedMessageFragment fragment);
+    void inject(AboutDialog fragmentDialog);
 }

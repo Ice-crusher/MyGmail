@@ -227,26 +227,6 @@ public class SendingMessagePresenter<V extends SendingMessageMvpView> extends Ba
             }
         }
 
-//        switch(requestCode) {
-//            case AppConstants.REQUEST_GOOGLE_PLAY_SERVICES:
-//                if (resultCode != Activity.RESULT_OK) {
-//                    getMvpView().showMessage(
-//                            "This app requires Google Play Services. Please install " +
-//                                    "Google Play Services on your device and relaunch this app.");
-//                } else {
-//                    //  getResultsFromApi();
-//                }
-//                break;
-//            case AppConstants.REQUEST_ACCOUNT_PICKER:
-//                if (resultCode == Activity.RESULT_OK && data != null &&
-//                        data.getExtras() != null)
-//
-//                break;
-//            case AppConstants.REQUEST_AUTHORIZATION:
-//                if (resultCode == Activity.RESULT_OK) {
-//                    //   getResultsFromApi();
-//                }
-//                break;
     }
 }
 

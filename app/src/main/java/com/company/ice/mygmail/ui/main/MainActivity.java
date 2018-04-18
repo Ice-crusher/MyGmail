@@ -17,6 +17,7 @@ import android.util.Log;
 
 import com.company.ice.mygmail.R;
 import com.company.ice.mygmail.data.network.model.Messages;
+import com.company.ice.mygmail.ui.about.AboutDialog;
 import com.company.ice.mygmail.ui.base.BaseActivity;
 import com.company.ice.mygmail.ui.detailedMessaage.DetailedMessageFragment;
 import com.company.ice.mygmail.ui.login.LoginActivity;
@@ -207,6 +208,9 @@ public class MainActivity extends BaseActivity
         Log.d(TAG, "FRAGMENT DETACHED TAG: " + tag);
         if (mFloatingActionButton != null & tag.equals(DetailedMessageFragment.TAG))
             mFloatingActionButton.show();
+        if (tag.equals(AboutDialog.TAG)){
+            unlockDrawer();
+        }
 
         super.onFragmentDetached(tag);
     }
@@ -278,12 +282,19 @@ public class MainActivity extends BaseActivity
                             case R.id.nav_trash:
                                 mPresenter.onNavMenuItemClick(AppConstants.MESSAGE_LABELS.TRASH);
                                 return true;
+                            case R.id.nav_about:
+                                showAboutFragment();
+                                return true;
                             default:
                                 return false;
                         }
                     }
                 });
+    }
 
+    public void showAboutFragment() {
+        lockDrawer();
+        AboutDialog.newInstance().show(getSupportFragmentManager(), AboutDialog.TAG);
     }
 
     @Override

@@ -106,14 +106,8 @@ public class AppApiHelper implements ApiHelper {
                             .setLabelIds(temp)
 //                            .setQ(query)
                             .execute();
-//        } else {
-//            messageResponse =
-//                    service.users().messages().list(user).setMaxResults(Long.valueOf(15)).execute();
-//        }
 
-//        Log.d(TAG, "Before: " + String.valueOf(currentPageToken));
         currentPageToken = messageResponse.getNextPageToken();
-//        Log.d(TAG, "After: " + String.valueOf(currentPageToken));
 
         List<Message> messages = messageResponse.getMessages();
         List<Messages.ShortMessage> list = new ArrayList<>();
@@ -155,7 +149,6 @@ public class AppApiHelper implements ApiHelper {
             shortMessage.setNew(isNew);
             shortMessage.setStarred(isStarred);
 
-//            Log.d(TAG, s);
 
             list.add(shortMessage);
         }
@@ -182,7 +175,6 @@ public class AppApiHelper implements ApiHelper {
         String query = "in:inbox";
         Log.d(TAG, "Start download FULL message...");
 
-//        Log.d(TAG, id);
 
         Messages.FullMessage fullMessage = new Messages.FullMessage();
 
@@ -193,8 +185,6 @@ public class AppApiHelper implements ApiHelper {
         String date =  formatter.format(d);
         Log.d(TAG, message2.toPrettyString());
         MessagePart payload = message2.getPayload();
-//        if (payload == null) Log.d(TAG, "PART IS NULL");
-//        else Log.d(TAG, payload.toPrettyString());
 
         String auth = "Unnamed";
         String authMail = "Unnamed";
