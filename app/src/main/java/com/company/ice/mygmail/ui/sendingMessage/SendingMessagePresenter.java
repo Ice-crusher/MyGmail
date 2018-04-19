@@ -191,6 +191,8 @@ public class SendingMessagePresenter<V extends SendingMessageMvpView> extends Ba
                 .observeOn(getSchedulerProvider().ui())
                 .subscribe(message -> {
                     getMvpView().hideLoading();
+                    getMvpView().showMessage("Message was send");
+                    getMvpView().closeActivity();
                 }, error -> {
                     if (!isViewAttached()) {
                         return;

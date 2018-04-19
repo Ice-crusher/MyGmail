@@ -112,6 +112,11 @@ public class SendingMessageActivity extends BaseActivity implements SendingMessa
     }
 
     @Override
+    public void closeActivity(){
+        finish();
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_sendiing_message, menu);
         return true;

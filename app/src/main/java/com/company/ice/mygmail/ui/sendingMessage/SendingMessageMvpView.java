@@ -14,6 +14,8 @@ import java.util.List;
 public interface SendingMessageMvpView extends MvpView {
     void fillView(String from, String to, String subject, String text);
 
+    void closeActivity();
+
     void updateAttachments(List<Messages.Attachment> list);
 
     void addItemToList(Messages.Attachment item);
