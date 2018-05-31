@@ -182,6 +182,7 @@ public class DetailedMessageFragment extends BaseFragment implements DetailedMes
     @Override
     protected void setUp(View view) {
 //        Log.d(TAG, "TAG IN FRAGMENT: " + mId);
+
         setActionBarTitle("");
         mStarCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
