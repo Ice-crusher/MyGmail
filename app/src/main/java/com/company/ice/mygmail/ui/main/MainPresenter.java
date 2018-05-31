@@ -68,6 +68,7 @@ public class MainPresenter<V extends MainMvpView> extends BasePresenter<V>
     @Override
     public void onClickResendButtons(Messages.FullMessage fullMessage){
 //        List<Messages.Attachment> temp = new ArrayList<>(fullMessage.getAttachments());
+        Log.d(TAG, fullMessage.toString());
         getMvpView().startSendFormActivity(SendingMessageActivity.getStartIntent(mActivity,
                 fullMessage.getAuthorEmail(),
                 fullMessage.getSubject(),

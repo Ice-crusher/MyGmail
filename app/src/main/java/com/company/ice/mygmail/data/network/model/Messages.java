@@ -146,6 +146,21 @@ public class Messages {
         public void setAttachments(List<Attachment> attachments) {
             this.attachments = new ArrayList<>(attachments);
         }
+
+        @Override
+        public String toString() {
+            return "FullMessage{" +
+                    "author='" + getAuthor() + '\'' +
+                    ", authorEmail='" + getAuthorEmail() + '\'' +
+                    ", subject='" + getSubject() + '\'' +
+                    ", date='" + getDate() + '\'' +
+                    ", id='" + getId() + '\'' +
+                    ", isNew=" + isNew() +
+                    ", isStarred=" + isStarred() +
+                    ", text='" + text + '\'' +
+                    ", attachments=" + attachments +
+                    '}';
+        }
     }
 
     public static class Attachment implements Serializable{

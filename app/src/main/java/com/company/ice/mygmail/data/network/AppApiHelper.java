@@ -256,9 +256,8 @@ public class AppApiHelper implements ApiHelper {
 
     // Parse text message in recursion way
     private String parseText(MessagePart payload) {
-        // TODO must be fixed for message with text/html only
-        String text = "NULL";
-        if (payload.getMimeType().equals(MIME_TYPE.TEXT_PLAIN)) {
+        String text = "NULL"; // sometimes message have only TEXT_HTML part
+        if (payload.getMimeType().equals(MIME_TYPE.TEXT_PLAIN) || payload.getMimeType().equals(MIME_TYPE.TEXT_HTML)) {
             text = StringUtils.newStringUtf8(Base64.decodeBase64(payload.getBody().getData()));
             return text;
         } else if (payload.getParts() != null) // if has child
